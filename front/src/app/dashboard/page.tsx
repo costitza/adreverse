@@ -14,66 +14,31 @@ import { OnboardingForm } from "@/components/features/onboarding/OnboardingForm"
 import { CompetitorDashboard } from "@/components/features/discovery/CompetitorDashboard";
 import { AdBreakdownCard } from "@/components/features/analysis/AdBreakdownCard";
 import { CampaignGenerator } from "@/components/features/adaptation/CampaignGenerator";
+import { Sidebar, StepId } from "@/components/layout/Sidebar";
 import {
   discoverCompetitors,
   analyzeAd,
   generateCounterCampaign,
 } from "@/lib/api";
-import { Button } from "@/components/ui/button";
 import {
-  CheckCircle2,
-  ChevronRight,
   ArrowLeft,
-  Sparkles,
-  Building2,
-  TrendingUp,
-  Eye,
-  Clapperboard,
   Loader2,
-  Home as HomeIcon,
+  Search,
+  ChevronRight,
 } from "lucide-react";
-import Link from "next/link";
 import { UserButton } from "@clerk/nextjs";
 
-type Step = 1 | 2 | 3 | 4;
+const STEP_TITLES: Record<StepId, string> = {
+  1: "Brand Matrix",
+  2: "Competitor Vault",
+  3: "Ad Breakdown",
+  4: "Campaign Studio",
+};
 
-interface StepInfo {
-  step: Step;
-  title: string;
-  shortDesc: string;
-  icon: React.ElementType;
-}
-
-const STEPS: StepInfo[] = [
-  {
-    step: 1,
-    title: "Brand Profile",
-    shortDesc: "Onboarding & Positioning",
-    icon: Building2,
-  },
-  {
-    step: 2,
-    title: "Market Discovery",
-    shortDesc: "Competitor Intelligence",
-    icon: TrendingUp,
-  },
-  {
-    step: 3,
-    title: "Ad Reverse-Eng",
-    shortDesc: "Deconstruction & Gaps",
-    icon: Eye,
-  },
-  {
-    step: 4,
-    title: "Counter-Campaign",
-    shortDesc: "UGC Storyboard & Copy",
-    icon: Clapperboard,
-  },
-];
-
-export default function Home() {
-  const [currentStep, setCurrentStep] = useState<Step>(1);
+export default function DashboardPage() {
+  const [currentStep, setCurrentStep] = useState<StepId>(1);
   const [loading, setLoading] = useState<boolean>(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Workflow State
   const [onboardingData, setOnboardingData] =
@@ -92,17 +57,18 @@ export default function Home() {
     AdaptationStrategy[]
   >([]);
 
-  // Step 1 Success Handler
+  // Step 1 Handler: Onboarding Completed -> Fetch Competitor Radar
   const handleOnboardingSuccess = async (data: BrandOnboardingResponse) => {
     setOnboardingData(data);
     setLoading(true);
 
     try {
-      const discovery = await discoverCompetitors({
+      const disc = await discoverCompetitors({
         brandId: data.brand.id,
       });
-      setCompetitors(discovery.competitors);
-      setMarketSnapshot(discovery.marketSnapshot);
+
+      setCompetitors(disc.competitors);
+      setMarketSnapshot(disc.marketSnapshot);
       setCurrentStep(2);
     } catch (err) {
       console.error("Discovery error:", err);
@@ -157,174 +123,130 @@ export default function Home() {
     }
   };
 
-  // Back Navigation
+  const handleStepSelect = (step: StepId) => {
+    setCurrentStep(step);
+  };
+
   const handleBack = () => {
     if (currentStep > 1) {
-      setCurrentStep((prev) => (prev - 1) as Step);
+      setCurrentStep((prev) => (prev - 1) as StepId);
     }
   };
 
-  // Reset Flow
   const handleReset = () => {
     setCurrentStep(1);
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col font-sans">
-      {/* Top Navbar */}
-      <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground font-black text-sm shadow-sm group-hover:scale-105 transition-transform">
-              AR
-            </div>
-            <div>
-              <span className="font-bold text-base tracking-tight block leading-tight">
-                AdReverse AI
-              </span>
-              <span className="text-[10px] text-muted-foreground uppercase tracking-wider block">
-                Competitor Intelligence Platform
-              </span>
-            </div>
-          </Link>
+    <div className="flex min-h-screen bg-[#151821] text-zinc-100 font-sans selection:bg-white/20 selection:text-white">
+      {/* 1. SIDEBAR STÂNGA (Permanent, fix: w-64, h-screen, fixed, left-0, top-0, z-50) */}
+      <Sidebar
+        currentStep={currentStep}
+        onSelectStep={handleStepSelect}
+        completedSteps={[1, 2, 3, 4].filter((s) => s < currentStep)}
+        creditsUsed={26}
+        creditsTotal={100}
+      />
 
-          <div className="flex items-center gap-3">
-            <Link href="/">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="gap-1.5 text-xs text-muted-foreground hover:text-foreground hidden sm:flex"
-              >
-                <HomeIcon className="w-3.5 h-3.5" />
-                Home
-              </Button>
-            </Link>
-            {currentStep > 1 && (
-              <Button
-                variant="outline"
-                size="sm"
+      {/* 2. WORKSPACE DREAPTA (Zona de lucru interactivă: ml-64 flex-1 min-h-screen bg-[#151821] p-8 overflow-y-auto) */}
+      <div className="ml-64 flex-1 min-h-screen bg-[#151821] p-8 overflow-y-auto flex flex-col">
+        {/* Header superior fin */}
+        <header className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-zinc-800/80">
+          {/* Breadcrumbs minimaliste sau buton "← Back" */}
+          <div className="flex items-center gap-3 text-xs text-[#b5b1a6] font-mono">
+            {currentStep > 1 ? (
+              <button
+                type="button"
                 onClick={handleBack}
                 disabled={loading}
-                className="gap-1.5 text-xs text-muted-foreground hover:text-foreground"
+                className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/5 hover:bg-white/10 text-zinc-200 border border-zinc-800 text-xs font-mono transition-all cursor-pointer shadow-xs"
               >
-                <ArrowLeft className="w-3.5 h-3.5" />
-                Back
-              </Button>
+                <ArrowLeft className="w-3.5 h-3.5 text-[#9e93d7]" />
+                <span>← Back to {STEP_TITLES[(currentStep - 1) as StepId]}</span>
+              </button>
+            ) : (
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-[#6cbb7a]" />
+                <span className="text-white font-semibold">Active Session</span>
+              </div>
             )}
-            <div className="text-xs text-muted-foreground hidden sm:block">
-              Step <span className="font-semibold text-foreground">{currentStep}</span> of 4
+
+            <ChevronRight className="w-3.5 h-3.5 text-zinc-700 hidden sm:inline" />
+            <span className="text-zinc-500 hidden sm:inline">Workspace</span>
+            <ChevronRight className="w-3.5 h-3.5 text-zinc-700 hidden sm:inline" />
+            <span className="text-[#9e93d7] font-semibold hidden sm:inline">
+              {currentStep}. {STEP_TITLES[currentStep]}
+            </span>
+          </div>
+
+          {/* Căutare tip capsulă rotunjită */}
+          <div className="flex items-center gap-4">
+            <div className="relative">
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search competitors, hooks, or angles..."
+                className="bg-white text-zinc-950 font-medium rounded-full px-5 py-2.5 shadow-sm w-96 placeholder:text-zinc-500 text-xs sm:text-sm outline-none focus:ring-2 focus:ring-[#9e93d7] transition-all"
+              />
+              <Search className="w-4 h-4 text-zinc-400 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" />
             </div>
-            <div className="pl-2 border-l border-border/50">
+
+            <div className="sm:hidden">
               <UserButton />
             </div>
           </div>
-        </div>
-      </header>
+        </header>
 
-      {/* Breadcrumb Steps Header */}
-      <div className="border-b border-border/30 bg-muted/20">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4">
-          <nav aria-label="Progress">
-            <ol className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4">
-              {STEPS.map((s) => {
-                const Icon = s.icon;
-                const isCompleted = currentStep > s.step;
-                const isCurrent = currentStep === s.step;
+        {/* Conținut Dinamic: Randează interactiv pasul activ curent */}
+        <main className="flex-1 w-full max-w-7xl mx-auto">
+          {loading ? (
+            <div className="min-h-[450px] bg-[#13161c] rounded-3xl border border-zinc-800/80 p-12 flex flex-col items-center justify-center space-y-4 shadow-xl">
+              <Loader2 className="w-8 h-8 animate-spin text-[#9e93d7]" />
+              <div className="text-center space-y-1">
+                <p className="text-sm font-semibold text-white">
+                  Deconstructing Psychological Hooks & Vulnerability Gaps
+                </p>
+                <p className="text-xs text-[#b5b1a6] font-mono">
+                  Benchmarking against Meta Ad Library and TikTok Creative Center...
+                </p>
+              </div>
+            </div>
+          ) : (
+            <>
+              {currentStep === 1 && (
+                <OnboardingForm onSuccess={handleOnboardingSuccess} />
+              )}
 
-                return (
-                  <li
-                    key={s.step}
-                    className={`flex items-center gap-2.5 p-2 rounded-lg transition-all ${
-                      isCurrent
-                        ? "bg-card border border-primary/30 shadow-xs"
-                        : "opacity-75"
-                    }`}
-                  >
-                    <div
-                      className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 text-xs font-bold transition-all ${
-                        isCompleted
-                          ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30"
-                          : isCurrent
-                          ? "bg-primary text-primary-foreground shadow-xs"
-                          : "bg-muted text-muted-foreground"
-                      }`}
-                    >
-                      {isCompleted ? (
-                        <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                      ) : (
-                        s.step
-                      )}
-                    </div>
-                    <div className="truncate">
-                      <span
-                        className={`text-xs font-semibold block truncate leading-tight ${
-                          isCurrent
-                            ? "text-foreground"
-                            : "text-muted-foreground"
-                        }`}
-                      >
-                        {s.title}
-                      </span>
-                      <span className="text-[10px] text-muted-foreground hidden sm:block truncate">
-                        {s.shortDesc}
-                      </span>
-                    </div>
-                  </li>
-                );
-              })}
-            </ol>
-          </nav>
-        </div>
+              {currentStep === 2 && onboardingData && marketSnapshot && (
+                <CompetitorDashboard
+                  onboardingData={onboardingData}
+                  competitors={competitors}
+                  marketSnapshot={marketSnapshot}
+                  onSelectCompetitor={handleSelectCompetitor}
+                />
+              )}
+
+              {currentStep === 3 && selectedCompetitor && aggregateSummary && (
+                <AdBreakdownCard
+                  competitor={selectedCompetitor}
+                  analyses={adAnalyses}
+                  aggregateSummary={aggregateSummary}
+                  onProceedToAdaptation={handleProceedToAdaptation}
+                />
+              )}
+
+              {currentStep === 4 && (
+                <CampaignGenerator
+                  campaigns={campaigns}
+                  adaptationStrategies={adaptationStrategies}
+                  onRestart={handleReset}
+                />
+              )}
+            </>
+          )}
+        </main>
       </div>
-
-      {/* Main Content Area */}
-      <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-8">
-        {loading ? (
-          <div className="min-h-[400px] flex flex-col items-center justify-center space-y-4">
-            <Loader2 className="w-8 h-8 animate-spin text-primary" />
-            <p className="text-sm font-medium text-muted-foreground animate-pulse">
-              Processing AI analysis and syncing data...
-            </p>
-          </div>
-        ) : (
-          <>
-            {currentStep === 1 && (
-              <OnboardingForm onSuccess={handleOnboardingSuccess} />
-            )}
-
-            {currentStep === 2 && onboardingData && marketSnapshot && (
-              <CompetitorDashboard
-                onboardingData={onboardingData}
-                competitors={competitors}
-                marketSnapshot={marketSnapshot}
-                onSelectCompetitor={handleSelectCompetitor}
-              />
-            )}
-
-            {currentStep === 3 && selectedCompetitor && aggregateSummary && (
-              <AdBreakdownCard
-                competitor={selectedCompetitor}
-                analyses={adAnalyses}
-                aggregateSummary={aggregateSummary}
-                onProceedToAdaptation={handleProceedToAdaptation}
-              />
-            )}
-
-            {currentStep === 4 && (
-              <CampaignGenerator
-                campaigns={campaigns}
-                adaptationStrategies={adaptationStrategies}
-                onRestart={handleReset}
-              />
-            )}
-          </>
-        )}
-      </main>
-
-      {/* Simple Footer */}
-      <footer className="border-t border-border/40 py-6 text-center text-xs text-muted-foreground">
-        AdReverse Platform &copy; 2026 — AI-Powered Competitor Intelligence & Counter-Ad Generation
-      </footer>
     </div>
   );
 }
