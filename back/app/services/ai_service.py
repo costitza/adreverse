@@ -60,15 +60,18 @@ class MarketDiscoveryResultLLM(BaseModel):
 
 def get_llm():
     """
-    Return active, high-speed LLM with graceful model fallback.
-    Uses verified models on Groq ('openai/gpt-oss-120b', 'qwen/qwen3.8-27b')
-    with modern non-deprecated parameter syntax (`model` instead of `model_name`).
+    Return active, high-speed LLM with multi-tier fallback:
+    1. Primary: Groq 'qwen/qwen3.8-27b'
+    2. Fallback Groq 2: 'openai/gpt-oss-120b'
+    3. Fallback Groq 3: 'openai/gpt-oss-20b'
+    4. Fallback Google Gemini: 'gemini-3.8-flash'
     """
-    # 1. Primary: Groq ultra-speed inference
+    # 1. Primary & Secondary Groq models
     if settings.GROQ_API_KEY and settings.GROQ_API_KEY.strip():
         groq_models = [
-            "openai/gpt-oss-120b",
             "qwen/qwen3.8-27b",
+            "openai/gpt-oss-120b",
+            "openai/gpt-oss-20b",
         ]
         for m in groq_models:
             try:
@@ -84,14 +87,14 @@ def get_llm():
     # 2. Secondary fallback: Google Gemini
     gemini_key = settings.GEMINI_API_KEY or settings.GOOGLE_API_KEY
     if gemini_key and gemini_key.strip():
-        gemini_models = ["gemini-1.5-flash", "gemini-1.5-pro"]
+        gemini_models = ["gemini-3.8-flash", "gemini-flash-latest"]
         for m in gemini_models:
             try:
                 return ChatGoogleGenerativeAI(
                     model=m,
-                    api_key=gemini_key.strip(),
+                    google_api_key=gemini_key.strip(),
                     temperature=0.2,
-                    timeout=15,
+                    timeout=20,
                 )
             except Exception:
                 continue

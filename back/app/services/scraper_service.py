@@ -52,7 +52,7 @@ class ScraperService:
         return None
 
     @staticmethod
-    async def scrape_live_competitor_ads(competitor_name: str, niche: str = "", max_results: int = 3) -> List[Dict[str, Any]]:
+    async def scrape_live_competitor_ads(competitor_name: str, niche: str = "", max_results: int = 2) -> List[Dict[str, Any]]:
         """
         Scrapes or accurately reconstructs authentic active digital ad creatives for a competitor.
         Combines Tavily brand campaign search with Groq LLM synthesis to produce realistic ad copy,

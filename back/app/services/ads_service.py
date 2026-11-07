@@ -41,6 +41,67 @@ class AdsService:
         brand_data = await db_service.get_brand_profile(brand_id)
         niche = brand_data.get("niche", "") if brand_data else ""
 
+        # SOLUȚIA 3: Caching complet în Supabase (dacă avem deja analize calculate pentru acest competitor, le servim instant)
+        if not payload.force_refresh:
+            cached_analyses_raw = await db_service.get_ad_analyses_by_competitor(brand_id, competitor_id)
+            if cached_analyses_raw and len(cached_analyses_raw) > 0:
+                cached_results: List[AdAnalysisResult] = []
+                for row in cached_analyses_raw:
+                    ad_info = row.get("competitor_ads") or {}
+                    breakdown_data = row.get("breakdown") or {}
+                    
+                    if ad_info and breakdown_data:
+                        ad_obj = CompetitorAd(
+                            ad_id=str(ad_info.get("ad_id") or row.get("ad_id")),
+                            competitor_id=competitor_id,
+                            brand_id=brand_id,
+                            platform=ad_info.get("platform", "instagram"),
+                            media_url=ad_info.get("media_url", "https://images.unsplash.com/photo-1604654894610-df63bc536371?q=80&w=800&auto=format&fit=crop"),
+                            thumbnail_url=ad_info.get("thumbnail_url"),
+                            ad_copy=ad_info.get("ad_copy", ""),
+                            headline=ad_info.get("headline", ""),
+                            cta_text=ad_info.get("cta_text", "Shop Now"),
+                            days_active=ad_info.get("days_active", 14),
+                            estimated_impressions=ad_info.get("estimated_impressions"),
+                            target_demographic=ad_info.get("target_demographic"),
+                            landing_page_url=ad_info.get("landing_page_url"),
+                            scraped_at=ad_info.get("scraped_at") or now_iso,
+                        )
+                        breakdown_obj = AdBreakdown.model_validate(breakdown_data)
+                        cached_results.append(
+                            AdAnalysisResult(
+                                ad=ad_obj,
+                                breakdown=breakdown_obj,
+                                analysed_at=row.get("analysed_at") or now_iso,
+                            )
+                        )
+                
+                if cached_results:
+                    total_cached = len(cached_results)
+                    avg_score = round(sum(a.breakdown.effectiveness_score for a in cached_results) / total_cached, 1)
+                    hook_types = [a.breakdown.hook_type for a in cached_results]
+                    most_used_hook: HookType = max(set(hook_types), key=hook_types.count) if hook_types else "bold_statement"
+                    platforms = [a.ad.platform for a in cached_results]
+                    most_used_platform: Platform = max(set(platforms), key=platforms.count) if platforms else "instagram"
+                    common_pains = list({a.breakdown.pain_point for a in cached_results})[:3]
+                    common_triggers = list({t for a in cached_results for t in a.breakdown.emotional_triggers})[:4]
+                    top_vuln = cached_results[0].breakdown.vulnerability_gap
+
+                    return AdAnalysisResponse(
+                        brand_id=brand_id,
+                        competitor_id=competitor_id,
+                        analyses=cached_results,
+                        aggregate_summary=AdAggregateSummary(
+                            total_ads_analysed=total_cached,
+                            avg_effectiveness_score=avg_score,
+                            most_used_hook_type=most_used_hook,
+                            most_used_platform=most_used_platform,
+                            common_pain_points=common_pains,
+                            common_emotional_triggers=common_triggers,
+                            top_vulnerability_gap=top_vuln,
+                        ),
+                    )
+
         # 2. Try fetching existing ads from Supabase if not forced refresh
         ads_to_analyse: List[CompetitorAd] = []
         if not payload.force_refresh:
@@ -66,9 +127,9 @@ class AdsService:
                         )
                     )
 
-        # 3. Scrape authentic ad creatives specific to this competitor
+        # 3. Scrape authentic ad creatives specific to this competitor (Soluția 4: batch de 2 reclame)
         if not ads_to_analyse:
-            live_scraped = await scraper_service.scrape_live_competitor_ads(competitor_name, niche=niche, max_results=3)
+            live_scraped = await scraper_service.scrape_live_competitor_ads(competitor_name, niche=niche, max_results=2)
             if live_scraped:
                 for idx, item in enumerate(live_scraped):
                     ads_to_analyse.append(

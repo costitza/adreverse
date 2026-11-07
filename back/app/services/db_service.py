@@ -80,6 +80,23 @@ class DbService:
             logger.warning(f"Could not fetch brand profile {brand_uuid}: {e}")
         return None
 
+    @staticmethod
+    async def get_brands_by_user(user_id: str) -> List[Dict[str, Any]]:
+        if not supabase or not user_id:
+            return []
+        try:
+            res = (
+                supabase.table("brand_profiles")
+                .select("*")
+                .eq("user_id", user_id)
+                .order("created_at", desc=True)
+                .execute()
+            )
+            return res.data or []
+        except Exception as e:
+            logger.warning(f"Could not fetch brands for user {user_id}: {e}")
+            return []
+
     # -----------------------------------------------------------------------
     # STEP 2: Competitors
     # -----------------------------------------------------------------------
@@ -204,6 +221,19 @@ class DbService:
         return None
 
     @staticmethod
+    async def get_competitor_ads_by_brand(brand_id: str) -> Optional[List[Dict[str, Any]]]:
+        if not supabase:
+            return None
+        brand_uuid = _ensure_uuid(brand_id)
+        try:
+            res = supabase.table("competitor_ads").select("*").eq("brand_id", brand_uuid).execute()
+            if res.data:
+                return res.data
+        except Exception as e:
+            logger.warning(f"Could not fetch competitor ads by brand: {e}")
+        return None
+
+    @staticmethod
     async def get_ads_by_ids(ad_ids: List[str]) -> Optional[List[Dict[str, Any]]]:
         if not supabase or not ad_ids:
             return None
@@ -240,6 +270,26 @@ class DbService:
         except Exception as e:
             logger.error(f"Failed to save ad analyses to Supabase: {e}")
             return None
+
+    @staticmethod
+    async def get_ad_analyses_by_competitor(brand_id: str, competitor_id: str) -> Optional[List[Dict[str, Any]]]:
+        if not supabase:
+            return None
+        brand_uuid = _ensure_uuid(brand_id)
+        comp_uuid = _ensure_uuid(competitor_id)
+        try:
+            res = (
+                supabase.table("ad_analyses")
+                .select("*, competitor_ads(*)")
+                .eq("brand_id", brand_uuid)
+                .eq("competitor_id", comp_uuid)
+                .execute()
+            )
+            if res.data:
+                return res.data
+        except Exception as e:
+            logger.warning(f"Could not fetch ad analyses by competitor: {e}")
+        return None
 
     @staticmethod
     async def get_ad_analyses_by_brand(brand_id: str) -> Optional[List[Dict[str, Any]]]:
@@ -297,6 +347,24 @@ class DbService:
             return res.data
         except Exception as e:
             logger.error(f"Failed to save generated campaigns to Supabase: {e}")
+            return None
+
+    @staticmethod
+    async def get_campaigns_by_brand(brand_id: str) -> Optional[List[Dict[str, Any]]]:
+        if not supabase:
+            return None
+        brand_uuid = _ensure_uuid(brand_id)
+        try:
+            res = (
+                supabase.table("ad_campaigns")
+                .select("*")
+                .eq("brand_id", brand_uuid)
+                .order("created_at", desc=True)
+                .execute()
+            )
+            return res.data or []
+        except Exception as e:
+            logger.warning(f"Could not fetch campaigns by brand: {e}")
             return None
 
 db_service = DbService()

@@ -1,14 +1,55 @@
 import json
 import re
-from typing import Optional
+from typing import Optional, List, Dict, Any
 from fastapi import APIRouter, Header, HTTPException, Request, status
 from app.schemas.domain import (
     BrandOnboardingRequest,
     BrandOnboardingResponse,
 )
 from app.services.brand_service import brand_service
+from app.services.db_service import db_service
 
 router = APIRouter(prefix="/brand", tags=["Brand Onboarding"])
+
+@router.get(
+    "/user-brands",
+    response_model=List[Dict[str, Any]],
+    status_code=status.HTTP_200_OK,
+    summary="List All Vaults / Brands for User",
+)
+async def get_user_brands(
+    x_user_id: Optional[str] = Header(None, alias="X-User-Id"),
+):
+    if not x_user_id:
+        return []
+    return await db_service.get_brands_by_user(x_user_id)
+
+@router.get(
+    "/{brand_id}/vault",
+    response_model=Dict[str, Any],
+    status_code=status.HTTP_200_OK,
+    summary="Get Complete Brand Vault (Brand, Competitors, Analyses, Campaigns)",
+)
+async def get_brand_vault(
+    brand_id: str,
+):
+    brand = await db_service.get_brand_profile(brand_id)
+    if not brand:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Brand vault not found",
+        )
+    
+    competitors = await db_service.get_competitors_by_brand(brand_id) or []
+    analyses = await db_service.get_ad_analyses_by_brand(brand_id) or []
+    campaigns = await db_service.get_campaigns_by_brand(brand_id) or []
+
+    return {
+        "brand": brand,
+        "competitors": competitors,
+        "analyses": analyses,
+        "campaigns": campaigns,
+    }
 
 @router.post(
     "/onboard",
