@@ -3,7 +3,6 @@
 import React, { useState } from "react";
 import {
   BrandOnboardingRequest,
-  BrandVoice,
   BrandOnboardingResponse,
   MOCK_BRAND_PROFILE,
 } from "@shared/types";
@@ -16,7 +15,6 @@ import {
   Globe,
   Building2,
   Target,
-  Volume2,
   ShieldCheck,
   Tag,
   Users,
@@ -24,9 +22,10 @@ import {
 
 interface OnboardingFormProps {
   onSuccess: (data: BrandOnboardingResponse) => void;
+  userId?: string;
 }
 
-export function OnboardingForm({ onSuccess }: OnboardingFormProps) {
+export function OnboardingForm({ onSuccess, userId }: OnboardingFormProps) {
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<BrandOnboardingRequest>({
     companyName: MOCK_BRAND_PROFILE.companyName,
@@ -78,7 +77,7 @@ export function OnboardingForm({ onSuccess }: OnboardingFormProps) {
     };
 
     try {
-      const response = await submitBrandProfile(payload);
+      const response = await submitBrandProfile(payload, userId);
       onSuccess(response);
     } catch (err) {
       console.error(err);
@@ -143,7 +142,7 @@ export function OnboardingForm({ onSuccess }: OnboardingFormProps) {
 
       {/* Main Bento Form Container */}
       <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
           {/* Card 1: Core Identity (Clean Dark Bento Card) */}
           <div className="bg-[#13161c] rounded-3xl p-6 sm:p-7 border border-zinc-800/80 shadow-sm space-y-5">
             <div className="flex items-center justify-between pb-3 border-b border-zinc-800/60">
@@ -161,138 +160,59 @@ export function OnboardingForm({ onSuccess }: OnboardingFormProps) {
               </span>
             </div>
 
-            {/* Company Name */}
-            <div className="space-y-1.5">
-              <label className="text-xs font-medium text-zinc-300">
-                Company / Brand Name
-              </label>
-              <input
-                type="text"
-                required
-                value={formData.companyName}
-                onChange={(e) =>
-                  setFormData({ ...formData, companyName: e.target.value })
-                }
-                placeholder="e.g. LumaFit"
-                className="w-full px-5 py-2.5 rounded-xl bg-[#363e4f] border border-zinc-800 text-zinc-100 placeholder:text-zinc-500 text-sm font-medium shadow-sm outline-none focus:border-[#9e93d7] focus:ring-1 focus:ring-[#9e93d7] transition-all"
-              />
-            </div>
-
-            {/* Website URL */}
-            <div className="space-y-1.5">
-              <label className="text-xs font-medium text-zinc-300 flex items-center gap-1.5">
-                <Globe className="w-3.5 h-3.5 text-[#99d3df]" />
-                Website URL
-              </label>
-              <input
-                type="url"
-                required
-                value={formData.websiteUrl}
-                onChange={(e) =>
-                  setFormData({ ...formData, websiteUrl: e.target.value })
-                }
-                placeholder="https://lumafit.com"
-                className="w-full px-5 py-2.5 rounded-xl bg-[#363e4f] border border-zinc-800 text-zinc-100 placeholder:text-zinc-500 text-sm font-medium shadow-sm outline-none focus:border-[#9e93d7] focus:ring-1 focus:ring-[#9e93d7] transition-all"
-              />
-            </div>
-
-            {/* Market Niche */}
-            <div className="space-y-1.5">
-              <label className="text-xs font-medium text-zinc-300 flex items-center gap-1.5">
-                <Target className="w-3.5 h-3.5 text-[#9e93d7]" />
-                Market Niche & Industry
-              </label>
-              <input
-                type="text"
-                required
-                value={formData.niche}
-                onChange={(e) =>
-                  setFormData({ ...formData, niche: e.target.value })
-                }
-                placeholder="e.g. Women's High-Performance Activewear"
-                className="w-full px-5 py-2.5 rounded-xl bg-[#363e4f] border border-zinc-800 text-zinc-100 placeholder:text-zinc-500 text-sm font-medium shadow-sm outline-none focus:border-[#9e93d7] focus:ring-1 focus:ring-[#9e93d7] transition-all"
-              />
-            </div>
-
-            {/* Brand Voice */}
-            <div className="space-y-1.5">
-              <label className="text-xs font-medium text-zinc-300 flex items-center gap-1.5">
-                <Volume2 className="w-3.5 h-3.5 text-[#6cbb7a]" />
-                Brand Editorial Voice
-              </label>
-              <select
-                value={formData.brandVoice}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    brandVoice: e.target.value as BrandVoice,
-                  })
-                }
-                className="w-full px-5 py-2.5 rounded-xl bg-[#363e4f] border border-zinc-800 text-zinc-100 text-sm font-medium shadow-sm outline-none focus:border-[#9e93d7] focus:ring-1 focus:ring-[#9e93d7] transition-all capitalize cursor-pointer"
-              >
-                <option value="inspirational">Inspirational & Empowering</option>
-                <option value="authoritative">Authoritative & Evidence-based</option>
-                <option value="conversational">Conversational & Direct</option>
-                <option value="humorous">Humorous & Witty</option>
-                <option value="professional">Professional & Technical</option>
-                <option value="empathetic">Empathetic & Solution-first</option>
-              </select>
-            </div>
-          </div>
-
-          {/* Card 2: Value Proposition & Product Catalog (Warm Coral / Dusty Rose Tint) */}
-          <div className="bg-[#2D2228]/40 rounded-3xl p-6 sm:p-7 border border-[#e9b0ce]/30 shadow-sm space-y-5 flex flex-col justify-between">
-            <div className="space-y-4">
-              <div className="flex items-center justify-between pb-3 border-b border-[#e9b0ce]/20">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-full bg-[#e9b0ce]/15 flex items-center justify-center text-[#e9b0ce]">
-                    <ShieldCheck className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-semibold text-[#e9b0ce]">USP & Product Matrix</h3>
-                    <span className="text-[11px] text-[#b5b1a6] font-mono">Unfair advantage vs category</span>
-                  </div>
-                </div>
-                <span className="rounded-full bg-[#e9b0ce]/15 border border-[#e9b0ce]/30 text-[#e9b0ce] text-xs px-3 py-0.5 font-medium">
-                  Core Lever
-                </span>
-              </div>
-
-              {/* USP */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+              {/* Company Name */}
               <div className="space-y-1.5">
-                <label className="text-xs font-medium text-zinc-200">
-                  Unique Selling Proposition (USP)
-                </label>
-                <textarea
-                  required
-                  rows={3}
-                  value={formData.usp}
-                  onChange={(e) =>
-                    setFormData({ ...formData, usp: e.target.value })
-                  }
-                  placeholder="e.g. Sculpting activewear built with breathable recycled ocean fiber with 100% zero-sheer squat guarantee."
-                  className="w-full px-5 py-3 rounded-xl bg-[#363e4f] border border-zinc-800 text-zinc-100 placeholder:text-zinc-500 text-sm font-medium shadow-sm outline-none focus:border-[#9e93d7] focus:ring-1 focus:ring-[#9e93d7] transition-all resize-none"
-                />
-              </div>
-
-              {/* Product Range */}
-              <div className="space-y-1.5">
-                <label className="text-xs font-medium text-zinc-200 flex items-center gap-1.5">
-                  <Tag className="w-3.5 h-3.5 text-[#e9b0ce]" />
-                  Product Catalog <span className="text-[#b5b1a6] text-[11px] font-mono">(comma-separated)</span>
+                <label className="text-xs font-medium text-zinc-300">
+                  Company / Brand Name
                 </label>
                 <input
                   type="text"
-                  value={productsInput}
-                  onChange={(e) => setProductsInput(e.target.value)}
-                  placeholder="High-waist Leggings, Compression Bras, Workout Sets"
-                  className="w-full px-5 py-2.5 rounded-xl bg-[#363e4f] border border-zinc-800 text-zinc-100 placeholder:text-zinc-500 text-sm font-medium shadow-sm outline-none focus:border-[#9e93d7] focus:ring-1 focus:ring-[#9e93d7] transition-all"
+                  required
+                  value={formData.companyName}
+                  onChange={(e) =>
+                    setFormData({ ...formData, companyName: e.target.value })
+                  }
+                  placeholder="e.g. LumaFit"
+                  className="w-full px-5 py-2.5 rounded-2xl bg-[#1e232e] border border-zinc-800 text-zinc-100 placeholder:text-zinc-500 text-sm font-medium shadow-sm outline-none focus:border-[#9e93d7] focus:ring-1 focus:ring-[#9e93d7] transition-all"
                 />
               </div>
-            </div>
 
-            <div className="p-3.5 rounded-2xl bg-[#13161c]/80 border border-[#e9b0ce]/20 text-xs text-zinc-300 leading-relaxed">
-              <span className="text-[#e9b0ce] font-semibold">Strategic Counter-Attack:</span> These product differentiators will be automatically pitted against the competitor&apos;s exposed vulnerabilities in Step 4.
+              {/* Website URL */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-zinc-300 flex items-center gap-1.5">
+                  <Globe className="w-3.5 h-3.5 text-[#99d3df]" />
+                  Website URL
+                </label>
+                <input
+                  type="url"
+                  required
+                  value={formData.websiteUrl}
+                  onChange={(e) =>
+                    setFormData({ ...formData, websiteUrl: e.target.value })
+                  }
+                  placeholder="https://lumafit.com"
+                  className="w-full px-5 py-2.5 rounded-2xl bg-[#1e232e] border border-zinc-800 text-zinc-100 placeholder:text-zinc-500 text-sm font-medium shadow-sm outline-none focus:border-[#9e93d7] focus:ring-1 focus:ring-[#9e93d7] transition-all"
+                />
+              </div>
+
+              {/* Market Niche */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-zinc-300 flex items-center gap-1.5">
+                  <Target className="w-3.5 h-3.5 text-[#9e93d7]" />
+                  Market Niche & Industry
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={formData.niche}
+                  onChange={(e) =>
+                    setFormData({ ...formData, niche: e.target.value })
+                  }
+                  placeholder="e.g. Women's High-Performance Activewear"
+                  className="w-full px-5 py-2.5 rounded-2xl bg-[#1e232e] border border-zinc-800 text-zinc-100 placeholder:text-zinc-500 text-sm font-medium shadow-sm outline-none focus:border-[#9e93d7] focus:ring-1 focus:ring-[#9e93d7] transition-all"
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -332,7 +252,7 @@ export function OnboardingForm({ onSuccess }: OnboardingFormProps) {
                   })
                 }
                 placeholder="24–38 years old"
-                className="w-full px-5 py-2.5 rounded-xl bg-[#363e4f] border border-zinc-800 text-zinc-100 placeholder:text-zinc-500 text-sm font-medium shadow-sm outline-none focus:border-[#9e93d7] focus:ring-1 focus:ring-[#9e93d7] transition-all"
+                className="w-full px-5 py-2.5 rounded-2xl bg-[#1e232e] border border-zinc-800 text-zinc-100 placeholder:text-zinc-500 text-sm font-medium shadow-sm outline-none focus:border-[#9e93d7] focus:ring-1 focus:ring-[#9e93d7] transition-all"
               />
             </div>
 
@@ -353,7 +273,7 @@ export function OnboardingForm({ onSuccess }: OnboardingFormProps) {
                   })
                 }
                 placeholder="US, UK, Australia, Canada, EU"
-                className="w-full px-5 py-2.5 rounded-xl bg-[#363e4f] border border-zinc-800 text-zinc-100 placeholder:text-zinc-500 text-sm font-medium shadow-sm outline-none focus:border-[#9e93d7] focus:ring-1 focus:ring-[#9e93d7] transition-all"
+                className="w-full px-5 py-2.5 rounded-2xl bg-[#1e232e] border border-zinc-800 text-zinc-100 placeholder:text-zinc-500 text-sm font-medium shadow-sm outline-none focus:border-[#9e93d7] focus:ring-1 focus:ring-[#9e93d7] transition-all"
               />
             </div>
 
@@ -366,7 +286,7 @@ export function OnboardingForm({ onSuccess }: OnboardingFormProps) {
                 value={painPointsInput}
                 onChange={(e) => setPainPointsInput(e.target.value)}
                 placeholder="leggings sliding down, see-through fabric, waistband rolling"
-                className="w-full px-5 py-2.5 rounded-xl bg-[#363e4f] border border-zinc-800 text-zinc-100 placeholder:text-zinc-500 text-sm font-medium shadow-sm outline-none focus:border-[#9e93d7] focus:ring-1 focus:ring-[#9e93d7] transition-all"
+                className="w-full px-5 py-2.5 rounded-2xl bg-[#1e232e] border border-zinc-800 text-zinc-100 placeholder:text-zinc-500 text-sm font-medium shadow-sm outline-none focus:border-[#9e93d7] focus:ring-1 focus:ring-[#9e93d7] transition-all"
               />
             </div>
 
@@ -379,7 +299,7 @@ export function OnboardingForm({ onSuccess }: OnboardingFormProps) {
                 value={interestsInput}
                 onChange={(e) => setInterestsInput(e.target.value)}
                 placeholder="pilates, strength training, wellness, functional athleisure"
-                className="w-full px-5 py-2.5 rounded-xl bg-[#363e4f] border border-zinc-800 text-zinc-100 placeholder:text-zinc-500 text-sm font-medium shadow-sm outline-none focus:border-[#9e93d7] focus:ring-1 focus:ring-[#9e93d7] transition-all"
+                className="w-full px-5 py-2.5 rounded-2xl bg-[#1e232e] border border-zinc-800 text-zinc-100 placeholder:text-zinc-500 text-sm font-medium shadow-sm outline-none focus:border-[#9e93d7] focus:ring-1 focus:ring-[#9e93d7] transition-all"
               />
             </div>
           </div>

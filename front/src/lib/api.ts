@@ -32,7 +32,9 @@ async function fetchWithFallback<T>(
 
   try {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 6000); // 6s timeout
+    const timeoutId = setTimeout(() => controller.abort(), 120000); // 120s timeout for live AI/scrapers
+
+    console.log(`[API Call] -> ${url}`, options.body ? JSON.parse(options.body as string) : "");
 
     const response = await fetch(url, {
       ...options,
@@ -46,11 +48,12 @@ async function fetchWithFallback<T>(
     clearTimeout(timeoutId);
 
     if (!response.ok) {
-      console.warn(`[API Warning] ${endpoint} returned status ${response.status}. Using fallback mock data.`);
+      console.error(`[API Warning] ${endpoint} returned status ${response.status}. Using fallback mock data.`);
       return fallbackData;
     }
 
     const payload = await response.json();
+    console.log(`[API Response] <- ${endpoint}`, payload);
 
     // Check if wrapped in standard ApiResponse envelope
     if (payload && typeof payload === "object" && "data" in payload && "success" in payload) {
@@ -63,16 +66,48 @@ async function fetchWithFallback<T>(
     // Direct data return
     return payload as T;
   } catch (error) {
-    console.warn(`[API Fallback] Request to ${endpoint} failed:`, error);
+    console.error(`[API Fallback] Request to ${endpoint} failed:`, error);
     return fallbackData;
   }
+}
+
+/**
+ * Get all saved brand vaults for current user
+ */
+export async function getUserBrandVaults(userId: string): Promise<any[]> {
+  if (!userId) return [];
+  return fetchWithFallback<any[]>(
+    "/api/brand/user-brands",
+    {
+      method: "GET",
+      headers: {
+        "X-User-Id": userId,
+      },
+    },
+    []
+  );
+}
+
+/**
+ * Get full data for a specific brand vault (brand, competitors, analyses, campaigns)
+ */
+export async function getBrandVault(brandId: string): Promise<any | null> {
+  if (!brandId) return null;
+  return fetchWithFallback<any | null>(
+    `/api/brand/${brandId}/vault`,
+    {
+      method: "GET",
+    },
+    null
+  );
 }
 
 /**
  * Step 1: Submit Brand Profile
  */
 export async function submitBrandProfile(
-  payload: BrandOnboardingRequest
+  payload: BrandOnboardingRequest,
+  userId?: string
 ): Promise<BrandOnboardingResponse> {
   const fallbackResponse: BrandOnboardingResponse = {
     brand: {
@@ -88,10 +123,16 @@ export async function submitBrandProfile(
     extractedInsights: MOCK_BRAND_INSIGHTS,
   };
 
+  const headers: Record<string, string> = {};
+  if (userId) {
+    headers["X-User-Id"] = userId;
+  }
+
   return fetchWithFallback<BrandOnboardingResponse>(
     "/api/brand/onboard",
     {
       method: "POST",
+      headers,
       body: JSON.stringify(payload),
     },
     fallbackResponse
@@ -127,21 +168,34 @@ export async function discoverCompetitors(
 export async function analyzeAd(
   payload: AdAnalysisRequest
 ): Promise<AdAnalysisResponse> {
-  const fallbackResponse: AdAnalysisResponse = {
-    brandId: payload.brandId,
-    competitorId: payload.competitorId,
-    analyses: MOCK_AD_ANALYSES,
-    aggregateSummary: MOCK_AD_AGGREGATE_SUMMARY,
-  };
+  const url = `${API_BASE_URL}/api/ads/analyse`;
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 120000);
 
-  return fetchWithFallback<AdAnalysisResponse>(
-    "/api/ads/analyse",
-    {
+  try {
+    const response = await fetch(url, {
       method: "POST",
+      signal: controller.signal,
+      headers: {
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify(payload),
-    },
-    fallbackResponse
-  );
+    });
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      const errText = await response.text();
+      throw new Error(`[API Error ${response.status}] ${errText}`);
+    }
+
+    const payloadJson = await response.json();
+    return payloadJson as AdAnalysisResponse;
+  } catch (error) {
+    clearTimeout(timeoutId);
+    console.error("[analyzeAd Failed]", error);
+    throw error;
+  }
 }
 
 /**

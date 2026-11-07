@@ -14,6 +14,7 @@ import {
   Clock,
   BarChart3,
   Layers,
+  CheckCircle2,
 } from "lucide-react";
 
 interface AdBreakdownCardProps {
@@ -47,94 +48,68 @@ export function AdBreakdownCard({
 
   return (
     <div className="w-full space-y-6">
-      {/* Top Banner / Bento Header */}
-      <div className="bg-[#13161c] rounded-3xl p-6 sm:p-8 border border-zinc-800/80 shadow-lg space-y-6">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="space-y-1">
+      {/* Top Banner (clean, debloated, uniform with Steps 1 & 2) */}
+      <div className="bg-[#13161c] rounded-3xl p-6 sm:p-8 border border-zinc-800/80 shadow-sm relative overflow-hidden">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="space-y-1.5">
             <div className="inline-flex items-center gap-2 rounded-full bg-white/5 border border-white/10 text-zinc-300 text-xs px-3.5 py-1 font-medium">
               <span className="w-1.5 h-1.5 rounded-full bg-[#9e93d7] shadow-[0_0_6px_#9e93d7]" />
               <span className="font-mono text-[11px] text-[#b5b1a6]">STEP 03</span>
               <span className="text-zinc-600">&bull;</span>
-              <span className="text-[#9e93d7] font-medium">Ad Deconstruction & Reverse-Engineering</span>
+              <span className="text-[#9e93d7] font-medium">Ad Breakdown & Gaps</span>
             </div>
             <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
-              Deconstructed Creatives & Vulnerability Gaps
+              Deconstructed Creatives & Vulnerabilities
             </h2>
             <p className="text-sm text-zinc-400">
-              Dissected high-converting ad units from <span className="text-white font-medium">{competitor.name}</span>.
+              Analysed <span className="text-zinc-200 font-semibold">{analyses.length} active ads</span> from{" "}
+              <span className="text-zinc-200 font-semibold">{competitor.name}</span>.
             </p>
           </div>
 
-          <Button
-            onClick={() =>
-              onProceedToAdaptation(
-                selectedAdsForCampaign.length > 0
-                  ? selectedAdsForCampaign
-                  : [ad.adId]
-              )
-            }
-            className="rounded-full bg-white text-zinc-950 font-bold px-7 py-3 text-sm hover:bg-zinc-200 transition-all shadow-md gap-2 shrink-0 cursor-pointer"
-          >
-            Generate Counter-Campaign
-            <ArrowRight className="w-4 h-4" />
-          </Button>
+          {/* Quick inline pills */}
+          <div className="flex items-center gap-2.5 flex-wrap">
+            <div className="px-3.5 py-1.5 rounded-2xl bg-[#181b24] border border-zinc-800 text-xs font-mono text-zinc-300">
+              <span className="text-zinc-400">Avg Score: </span>
+              <strong className="text-white">{aggregateSummary.avgEffectivenessScore.toFixed(0)}/100</strong>
+            </div>
+            <div className="px-3.5 py-1.5 rounded-2xl bg-[#181b24] border border-zinc-800 text-xs font-mono text-zinc-300 capitalize">
+              <span className="text-zinc-400">Hook: </span>
+              <strong className="text-white">{aggregateSummary.mostUsedHookType.replace("_", " ")}</strong>
+            </div>
+          </div>
         </div>
 
-        {/* 4 Bento Aggregate Index Tiles with Strict Semantic Mapping */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {/* Tile 1: Ads Analysed (Neutral Slate) */}
-          <div className="bg-[#181b24] rounded-2xl p-4 border border-zinc-800/80 flex flex-col justify-between">
-            <span className="text-xs text-[#b5b1a6] font-mono uppercase tracking-wider block font-semibold">Ads Analysed</span>
-            <div className="text-2xl font-bold text-white mt-1">
-              {aggregateSummary.totalAdsAnalysed}
-            </div>
-            <span className="text-[11px] text-[#b5b1a6] font-mono">Active creative pool</span>
-          </div>
-
-          {/* Tile 2: Avg Effectiveness (Sage Mint / Clean Emerald #6cbb7a) */}
-          <div className="bg-[#181b24] rounded-2xl p-4 border border-[#6cbb7a]/30 flex flex-col justify-between">
-            <span className="text-xs text-[#6cbb7a] font-mono uppercase tracking-wider block font-semibold">Avg Effectiveness</span>
-            <div className="text-2xl font-bold text-white mt-1">
-              {aggregateSummary.avgEffectivenessScore.toFixed(1)}
-              <span className="text-sm text-[#6cbb7a]/60 font-mono">/100</span>
-            </div>
-            <span className="text-[11px] text-[#6cbb7a]/80 font-mono">Benchmark index</span>
-          </div>
-
-          {/* Tile 3: Dominant Hook (Soft Lavender #9e93d7) */}
-          <div className="bg-[#181b24] rounded-2xl p-4 border border-[#9e93d7]/30 flex flex-col justify-between">
-            <span className="text-xs text-[#9e93d7] font-mono uppercase tracking-wider block font-semibold">Dominant Hook</span>
-            <div className="text-base font-bold text-white mt-1 capitalize truncate">
-              {aggregateSummary.mostUsedHookType.replace("_", " ")}
-            </div>
-            <span className="text-[11px] text-[#9e93d7]/80 font-mono">Persuasion mechanism</span>
-          </div>
-
-          {/* Tile 4: Core Exploit (Warm Muted Amber #e8b98d) */}
-          <div className="bg-[#181b24] rounded-2xl p-4 border border-[#e8b98d]/30 flex flex-col justify-between">
-            <span className="text-xs text-[#e8b98d] font-mono uppercase tracking-wider block font-semibold">02. Vulnerability Gap</span>
-            <div className="text-xs font-semibold text-zinc-200 mt-1 line-clamp-2">
+        {/* Global Opportunity / Vulnerability Banner */}
+        {aggregateSummary.topVulnerabilityGap && (
+          <div className="mt-5 pt-4 border-t border-zinc-800/70 flex items-start gap-2.5 text-xs text-zinc-300 leading-relaxed">
+            <ShieldAlert className="w-4 h-4 text-[#e8b98d] shrink-0 mt-0.5" />
+            <p>
+              <strong className="text-zinc-200">Competitor Weakness:</strong>{" "}
               {aggregateSummary.topVulnerabilityGap}
-            </div>
+            </p>
           </div>
-        </div>
+        )}
       </div>
 
-      {/* Pill-Tabs for Creative Selection */}
+      {/* Pill-Tabs for Switching Between Creative Analyses */}
       <div className="flex items-center gap-2 overflow-x-auto pb-1">
         <span className="text-xs text-[#b5b1a6] font-mono uppercase tracking-wider font-semibold mr-2 shrink-0">
           Creatives:
         </span>
         {analyses.map((item, idx) => {
           const isCurrent = idx === selectedAdIndex;
+          const isChecked = selectedAdsForCampaign.includes(item.ad.adId);
+
           return (
             <button
               key={item.ad.adId}
+              type="button"
               onClick={() => setSelectedAdIndex(idx)}
-              className={`rounded-full px-4 py-2 text-xs font-medium transition-all flex items-center gap-2 shrink-0 cursor-pointer ${
+              className={`rounded-full px-4 py-2 text-xs font-medium transition-all flex items-center gap-2.5 shrink-0 cursor-pointer ${
                 isCurrent
                   ? "bg-white text-zinc-950 font-bold shadow-sm"
-                  : "bg-white/5 text-zinc-300 hover:bg-white/10 border border-zinc-800"
+                  : "bg-[#181b24] text-zinc-300 hover:bg-[#202531] border border-zinc-800"
               }`}
             >
               <span className="capitalize">#{idx + 1} &bull; {item.ad.platform}</span>
@@ -147,25 +122,28 @@ export function AdBreakdownCard({
               >
                 {item.breakdown.effectivenessScore}
               </span>
+              {isChecked && (
+                <CheckCircle2 className={`w-3.5 h-3.5 ${isCurrent ? "text-emerald-700" : "text-emerald-400"}`} />
+              )}
             </button>
           );
         })}
       </div>
 
-      {/* Main Breakdown Layout: 2 Columns */}
+      {/* Unified 2-Column Clean Presentation */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        {/* Left Column: Raw Creative Frame (5 cols) */}
+        {/* Left Column: Creative Card & Ad Copy (5 cols) */}
         <div className="lg:col-span-5 bg-[#13161c] rounded-3xl p-6 border border-zinc-800/80 shadow-sm space-y-4">
           <div className="flex items-center justify-between pb-3 border-b border-zinc-800/60">
             <div className="flex items-center gap-2">
-              {/* Channel badge with Cyan #99d3df */}
-              <span className="rounded-full bg-[#99d3df]/15 text-[#99d3df] border border-[#99d3df]/30 text-xs px-3 py-1 font-mono uppercase font-semibold">
+              <span className="rounded-full bg-white/5 border border-white/10 text-xs px-3 py-0.5 font-mono uppercase text-zinc-300">
                 {ad.platform}
               </span>
               <span className="text-xs text-[#b5b1a6] font-mono flex items-center gap-1">
-                <Clock className="w-3.5 h-3.5 text-[#b5b1a6]" /> {ad.daysActive}d active
+                <Clock className="w-3.5 h-3.5" /> {ad.daysActive}d active
               </span>
             </div>
+
             <label className="flex items-center gap-2 text-xs font-medium cursor-pointer text-zinc-300">
               <input
                 type="checkbox"
@@ -173,171 +151,158 @@ export function AdBreakdownCard({
                 onChange={() => toggleSelectAdForCampaign(ad.adId)}
                 className="rounded-full accent-[#9e93d7] w-4 h-4 cursor-pointer"
               />
-              <span className="font-mono text-[11px] text-[#b5b1a6]">Include</span>
+              <span className="font-mono text-[11px] text-[#b5b1a6]">Target</span>
             </label>
           </div>
 
-          {/* Ad Mock Creative Frame */}
-          <div className="rounded-2xl bg-[#181b24] p-5 border border-zinc-800 flex flex-col justify-between min-h-[260px] relative overflow-hidden">
-            <div className="flex justify-between items-start">
-              <span className="text-xs font-semibold px-3 py-1 rounded-full bg-white/10 text-white backdrop-blur-sm border border-white/5">
+          {/* Ad Mock Card */}
+          <div className="rounded-2xl bg-[#181b24] p-5 border border-zinc-800 flex flex-col justify-between min-h-[220px]">
+            <div className="flex justify-between items-center text-xs">
+              <span className="font-semibold px-2.5 py-0.5 rounded-full bg-white/10 text-white border border-white/5">
                 {competitor.name}
               </span>
               <span className="text-[11px] font-mono text-[#b5b1a6]">
                 {ad.estimatedImpressions
                   ? `~${(ad.estimatedImpressions / 1000000).toFixed(1)}M impressions`
-                  : "Active Scaled"}
+                  : "Active Ad"}
               </span>
             </div>
 
-            <div className="my-6 text-center space-y-2">
-              <p className="text-base font-bold text-white tracking-tight leading-snug">
+            <div className="my-5 space-y-2">
+              <p className="text-sm sm:text-base font-bold text-white tracking-tight">
                 &ldquo;{breakdown.hook}&rdquo;
               </p>
               {ad.headline && (
-                <p className="text-xs text-zinc-300 line-clamp-2">
+                <p className="text-xs text-zinc-400">
                   {ad.headline}
                 </p>
               )}
             </div>
 
-            <div className="pt-3 flex justify-between items-center border-t border-zinc-800">
-              <span className="text-[11px] text-[#b5b1a6] font-mono uppercase tracking-wider font-medium">CTA Action</span>
-              <span className="rounded-full bg-white text-zinc-950 font-bold text-xs px-4 py-1.5 shadow-sm">
+            <div className="pt-3 flex justify-between items-center border-t border-zinc-800/80">
+              <span className="text-[11px] text-zinc-400 font-mono">CTA</span>
+              <span className="rounded-full bg-white text-zinc-950 font-semibold text-xs px-3 py-1 shadow-sm">
                 {ad.ctaText}
               </span>
             </div>
           </div>
 
-          {/* Ad Copy Body */}
+          {/* Primary Copy */}
           <div className="space-y-1.5">
-            <span className="text-xs font-mono uppercase tracking-wider block text-[#b5b1a6] font-semibold">
-              Primary Ad Copy:
+            <span className="text-xs font-mono uppercase tracking-wider block text-zinc-400 font-medium">
+              Ad Copy:
             </span>
             <p className="text-xs text-zinc-200 bg-[#181b24] p-4 rounded-2xl border border-zinc-800/80 leading-relaxed italic">
               &ldquo;{ad.adCopy}&rdquo;
             </p>
           </div>
-
-          {ad.targetDemographic && (
-            <div className="text-xs text-zinc-400 pt-1 flex items-start gap-1.5">
-              <span className="font-mono text-[#e8b98d] font-semibold shrink-0">Demographic: </span>
-              <span className="text-zinc-300">{ad.targetDemographic}</span>
-            </div>
-          )}
         </div>
 
-        {/* Right Column: AI Color-Coded Bento Cards for Hook (#9e93d7), Vulnerability Gap (#e8b98d), Pain Point (#e9b0ce) & Counter-Angle (#6cbb7a) */}
-        <div className="lg:col-span-7 space-y-5">
-          {/* Card 1: Lavender #9e93d7 (Hook Psihologic & Persuasion Mechanism) */}
-          <div className="bg-[#13161c] rounded-3xl p-6 border border-[#9e93d7]/35 shadow-sm space-y-3">
-            <div className="flex items-center justify-between pb-2 border-b border-[#9e93d7]/20">
+        {/* Right Column: Clean Unified Analysis Card (7 cols) */}
+        <div className="lg:col-span-7 bg-[#13161c] rounded-3xl p-6 border border-zinc-800/80 shadow-sm space-y-5">
+          {/* Section 1: Hook & Mechanism */}
+          <div className="space-y-2 pb-4 border-b border-zinc-800/60">
+            <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-xl bg-[#9e93d7]/15 flex items-center justify-center text-[#9e93d7] border border-[#9e93d7]/25">
-                  <Sparkles className="w-3.5 h-3.5" />
-                </div>
-                <h3 className="text-xs font-mono uppercase tracking-wider text-[#9e93d7] font-semibold">
-                  01. Psychological Hook Analysis
+                <Sparkles className="w-4 h-4 text-[#9e93d7]" />
+                <h3 className="text-xs font-mono uppercase tracking-wider text-zinc-200 font-semibold">
+                  Hook & Mechanism
                 </h3>
               </div>
-              <span className="rounded-full bg-[#9e93d7]/15 text-[#9e93d7] border border-[#9e93d7]/25 text-[10px] font-mono px-3 py-0.5 capitalize">
+              <span className="rounded-full bg-[#9e93d7]/15 text-[#9e93d7] border border-[#9e93d7]/25 text-[10px] font-mono px-2.5 py-0.5 capitalize">
                 {breakdown.hookType.replace("_", " ")}
               </span>
             </div>
-
-            <p className="text-sm font-semibold text-white leading-relaxed">
+            <p className="text-sm font-semibold text-white">
               &ldquo;{breakdown.hook}&rdquo;
             </p>
-
-            <div className="text-xs text-zinc-300 leading-relaxed pt-1 bg-[#181b24] p-3 rounded-2xl border border-zinc-800/80">
-              <span className="font-mono text-[#9e93d7] uppercase text-[10px] block font-semibold mb-0.5">
-                Mechanism:
-              </span>
-              {breakdown.mechanism}
-            </div>
-          </div>
-
-          {/* Card 2: Warm Muted Amber #e8b98d (02. VULNERABILITY GAP DETECTED) */}
-          <div className="bg-[#28241F]/40 rounded-3xl p-6 border border-[#e8b98d]/30 shadow-sm space-y-3">
-            <div className="flex items-center justify-between pb-2 border-b border-[#e8b98d]/20">
-              <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-xl bg-[#e8b98d]/15 flex items-center justify-center text-[#e8b98d] border border-[#e8b98d]/25">
-                  <ShieldAlert className="w-3.5 h-3.5" />
-                </div>
-                <h3 className="text-xs font-mono uppercase tracking-wider text-[#e8b98d] font-bold">
-                  02. VULNERABILITY GAP DETECTED
-                </h3>
-              </div>
-              <span className="rounded-full bg-[#e8b98d]/15 text-[#e8b98d] border border-[#e8b98d]/30 text-[10px] font-mono px-2.5 py-0.5 font-bold uppercase">
-                Vulnerability Gap
-              </span>
-            </div>
-
-            <p className="text-xs sm:text-sm text-[#e8b98d] font-medium leading-relaxed bg-[#13161c]/80 p-3.5 rounded-2xl border border-[#e8b98d]/20">
-              {breakdown.vulnerabilityGap}
+            <p className="text-xs text-zinc-300 leading-relaxed bg-[#181b24] p-3 rounded-2xl border border-zinc-800/70">
+              <strong className="text-zinc-200">How it works:</strong> {breakdown.mechanism}
             </p>
           </div>
 
-          {/* Card 3: Dusty Rose Pastel #e9b0ce (Pain Point & Emotional Tension) */}
-          <div className="bg-[#2D2228]/40 rounded-3xl p-6 border border-[#e9b0ce]/30 shadow-sm space-y-3">
-            <div className="flex items-center justify-between pb-2 border-b border-[#e9b0ce]/20">
-              <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-xl bg-[#e9b0ce]/15 flex items-center justify-center text-[#e9b0ce] border border-[#e9b0ce]/25">
-                  <Layers className="w-3.5 h-3.5" />
-                </div>
-                <h3 className="text-xs font-mono uppercase tracking-wider text-[#e9b0ce] font-semibold">
-                  Customer Friction & Pain Point
-                </h3>
-              </div>
-              <span className="rounded-full bg-[#e9b0ce]/15 text-[#e9b0ce] border border-[#e9b0ce]/30 text-[10px] font-mono px-2.5 py-0.5 font-medium">
-                Emotional Tension
-              </span>
+          {/* Section 2: Vulnerability Gap */}
+          <div className="space-y-2 pb-4 border-b border-zinc-800/60">
+            <div className="flex items-center gap-2">
+              <ShieldAlert className="w-4 h-4 text-[#e8b98d]" />
+              <h3 className="text-xs font-mono uppercase tracking-wider text-[#e8b98d] font-bold">
+                Exposed Vulnerability
+              </h3>
             </div>
+            <div className="text-xs sm:text-sm text-[#e8b98d] font-medium leading-relaxed bg-[#28241F]/40 p-3.5 rounded-2xl border border-[#e8b98d]/25">
+              {breakdown.vulnerabilityGap}
+            </div>
+          </div>
 
-            <p className="text-xs sm:text-sm text-zinc-200 leading-relaxed bg-[#13161c]/80 p-3.5 rounded-2xl border border-[#e9b0ce]/20">
+          {/* Section 3: Customer Friction & Triggers */}
+          <div className="space-y-2 pb-4 border-b border-zinc-800/60">
+            <div className="flex items-center gap-2">
+              <Layers className="w-4 h-4 text-zinc-400" />
+              <h3 className="text-xs font-mono uppercase tracking-wider text-zinc-200 font-semibold">
+                Customer Friction & Triggers
+              </h3>
+            </div>
+            <p className="text-xs text-zinc-300 leading-relaxed">
               {breakdown.painPoint}
             </p>
-
-            {/* Emotional Triggers */}
-            <div className="pt-1 space-y-1.5">
-              <span className="text-[10px] font-mono text-[#b5b1a6] uppercase tracking-wider block">
-                Triggered States:
-              </span>
-              <div className="flex flex-wrap gap-1.5">
-                {breakdown.emotionalTriggers.map((t, i) => (
-                  <span
-                    key={i}
-                    className="rounded-full bg-[#e9b0ce]/10 border border-[#e9b0ce]/20 text-[#e9b0ce] text-xs px-3 py-0.5 font-mono"
-                  >
-                    #{t}
-                  </span>
-                ))}
-              </div>
+            <div className="flex flex-wrap gap-1.5 pt-1">
+              {breakdown.emotionalTriggers.map((t, i) => (
+                <span
+                  key={i}
+                  className="rounded-full bg-white/5 border border-white/10 text-zinc-300 text-[11px] px-2.5 py-0.5 font-mono"
+                >
+                  #{t}
+                </span>
+              ))}
             </div>
           </div>
 
-          {/* Card 4: Sage Mint #6cbb7a (Offer Structure & Effectiveness Score) */}
-          <div className="bg-[#13161c] rounded-3xl p-6 border border-[#6cbb7a]/35 shadow-sm space-y-3">
-            <div className="flex items-center justify-between pb-2 border-b border-[#6cbb7a]/20">
+          {/* Section 4: Offer Structure */}
+          <div className="flex items-start justify-between gap-4 pt-1">
+            <div className="space-y-1">
               <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-xl bg-[#6cbb7a]/15 flex items-center justify-center text-[#6cbb7a] border border-[#6cbb7a]/25">
-                  <BarChart3 className="w-3.5 h-3.5" />
-                </div>
-                <h3 className="text-xs font-mono uppercase tracking-wider text-[#6cbb7a] font-semibold">
-                  Offer Structure & Efficiency
+                <BarChart3 className="w-4 h-4 text-[#6cbb7a]" />
+                <h3 className="text-xs font-mono uppercase tracking-wider text-zinc-200 font-semibold">
+                  Offer Framing
                 </h3>
               </div>
-              <span className="rounded-full bg-[#6cbb7a]/15 text-[#6cbb7a] border border-[#6cbb7a]/25 text-xs font-mono px-3 py-1 font-bold">
-                {breakdown.effectivenessScore}/100 Score
-              </span>
+              <p className="text-xs text-zinc-300 leading-relaxed">
+                {breakdown.offerStructure}
+              </p>
             </div>
 
-            <p className="text-xs sm:text-sm text-zinc-200 leading-relaxed bg-[#181b24] p-3 rounded-2xl border border-zinc-800/80">
-              <span className="font-mono text-[#6cbb7a] text-xs font-semibold">Offer Framing: </span>
-              {breakdown.offerStructure}
-            </p>
+            <div className="shrink-0 text-right">
+              <span className="text-[10px] font-mono text-zinc-400 uppercase block">Score</span>
+              <span className="text-base font-mono font-bold text-white">
+                {breakdown.effectivenessScore}/100
+              </span>
+            </div>
           </div>
         </div>
+      </div>
+
+      {/* Action Footer (Centered & rounded CTA bar) */}
+      <div className="bg-[#13161c] rounded-3xl p-4 sm:p-5 border border-zinc-800/80 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="flex items-center gap-2 text-xs text-zinc-300">
+          <span className="w-2 h-2 rounded-full bg-[#6cbb7a]" />
+          <span>
+            {selectedAdsForCampaign.length} of {analyses.length} creatives selected for counter-campaign
+          </span>
+        </div>
+
+        <Button
+          onClick={() =>
+            onProceedToAdaptation(
+              selectedAdsForCampaign.length > 0
+                ? selectedAdsForCampaign
+                : [ad.adId]
+            )
+          }
+          className="w-full sm:w-auto rounded-full bg-white text-zinc-950 font-semibold px-8 py-2.5 text-sm hover:bg-zinc-200 transition-all gap-2 cursor-pointer shadow-sm"
+        >
+          <span>Generate Counter-Campaign Studio</span>
+          <ArrowRight className="w-4 h-4" />
+        </Button>
       </div>
     </div>
   );
