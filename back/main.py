@@ -3,9 +3,10 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.routers.brand import router as brand_router
 from app.routers.discovery import router as discovery_router
+from app.routers.ads import router as ads_router
 
 app = FastAPI(
-    title="AdReverse API",
+    title="AdGenesis / AdReverse API",
     version="1.0.0",
     description="AI Ad Reverse-Engineering & Competitor Intelligence Platform API",
 )
@@ -25,11 +26,16 @@ app.add_middleware(
 # Register API routers with /api prefix
 app.include_router(brand_router, prefix="/api")
 app.include_router(discovery_router, prefix="/api")
+app.include_router(ads_router, prefix="/api")
 
 @app.get("/health", tags=["Health"])
 async def health_check():
     return {
         "status": "ok",
         "service": "AdReverse Backend",
-        "workflows": ["Step 1: Brand Onboarding", "Step 2: Market Discovery"],
+        "workflows": [
+            "Step 1: Brand Onboarding",
+            "Step 2: Market Discovery",
+            "Step 3: Ad Scraping & Reverse Engineering",
+        ],
     }

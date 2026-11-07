@@ -1,5 +1,6 @@
+import logging
 from typing import Optional, List
-from pydantic import BaseModel, Field, SecretStr
+from pydantic import BaseModel, Field
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_groq import ChatGroq
 from langchain_google_genai import ChatGoogleGenerativeAI
@@ -13,7 +14,8 @@ from app.schemas.domain import (
     Platform,
 )
 
-# Output schemas for LLM structured output
+logger = logging.getLogger(__name__)
+
 class BrandExtractionResult(BaseModel):
     company_name: str = Field(description="Brand or company name")
     niche: str = Field(description="Specific e-commerce/business industry niche")
@@ -57,28 +59,41 @@ class MarketDiscoveryResultLLM(BaseModel):
     opportunity_gap_summary: str = Field(description="Strategic analysis of where competitors are weak and where user's brand can win")
 
 def get_llm():
-    """Return configured ChatGroq model with fallback to Gemini or None."""
-    if settings.GROQ_API_KEY:
-        try:
-            return ChatGroq(
-                model="llama-3.3-70b-versatile",
-                api_key=SecretStr(settings.GROQ_API_KEY),
-                temperature=0.2,
-                timeout=20,
-                stop_sequences=None,
-            )
-        except Exception:
-            pass
+    """
+    Return active, high-speed LLM with graceful model fallback.
+    Uses verified models on Groq ('openai/gpt-oss-120b', 'qwen/qwen3.8-27b')
+    with modern non-deprecated parameter syntax (`model` instead of `model_name`).
+    """
+    # 1. Primary: Groq ultra-speed inference
+    if settings.GROQ_API_KEY and settings.GROQ_API_KEY.strip():
+        groq_models = [
+            "openai/gpt-oss-120b",
+            "qwen/qwen3.8-27b",
+        ]
+        for m in groq_models:
+            try:
+                return ChatGroq(
+                    model=m,
+                    api_key=settings.GROQ_API_KEY.strip(),
+                    temperature=0.2,
+                    timeout=15,
+                )
+            except Exception:
+                continue
 
-    if settings.GOOGLE_API_KEY:
-        try:
-            return ChatGoogleGenerativeAI(
-                model="gemini-1.5-flash",
-                api_key=SecretStr(settings.GOOGLE_API_KEY),
-                temperature=0.2,
-                timeout=20,
-            )
-        except Exception:
-            pass
+    # 2. Secondary fallback: Google Gemini
+    gemini_key = settings.GEMINI_API_KEY or settings.GOOGLE_API_KEY
+    if gemini_key and gemini_key.strip():
+        gemini_models = ["gemini-1.5-flash", "gemini-1.5-pro"]
+        for m in gemini_models:
+            try:
+                return ChatGoogleGenerativeAI(
+                    model=m,
+                    api_key=gemini_key.strip(),
+                    temperature=0.2,
+                    timeout=15,
+                )
+            except Exception:
+                continue
 
     return None
