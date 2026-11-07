@@ -202,3 +202,61 @@ class AdAnalysisResponse(CamelModel):
     competitor_id: str
     analyses: List[AdAnalysisResult]
     aggregate_summary: AdAggregateSummary
+
+# ---------------------------------------------------------------------------
+# STEP 4 — CAMPAIGN ADAPTATION & GENERATION
+# ---------------------------------------------------------------------------
+
+class UgcStoryboardFrame(CamelModel):
+    second: int
+    visual_frame: str
+    audio_script: str
+    text_overlay: Optional[str] = None
+    transition_note: Optional[str] = None
+
+class CostSavingsEstimate(CamelModel):
+    traditional_agency_cost_usd: float
+    ai_generation_cost_usd: float
+    savings_usd: float
+    savings_percent: float
+    time_to_market_days: int
+
+class ProjectedMetrics(CamelModel):
+    estimated_ctr: float
+    estimated_conversion_rate: float
+    estimated_roas: float
+    confidence_level: Literal["low", "medium", "high"]
+
+class GeneratedCampaign(CamelModel):
+    id: str
+    brand_id: str
+    angle_used: StrategyAngle
+    headline: str
+    primary_text: str
+    cta: str
+    visual_concept_brief: str
+    ugc_storyboard: List[UgcStoryboardFrame]
+    estimated_cost_savings: CostSavingsEstimate
+    projected_metrics: ProjectedMetrics
+    generated_at: str
+
+class AdaptationStrategy(CamelModel):
+    angle_used: StrategyAngle
+    source_ad_ids: List[str]
+    differentiators: List[str]
+    avoid_patterns: List[str]
+    tone_guidelines: str
+
+class CampaignGenerationRequest(CamelModel):
+    brand_id: str
+    competitor_ad_ids: Optional[List[str]] = Field(default_factory=list)
+    strategy_angles: Optional[List[StrategyAngle]] = Field(
+        default_factory=lambda: ["direct_comparison", "problem_agitation", "social_proof_reviews"]
+    )
+    custom_instructions: Optional[str] = None
+
+class CampaignGenerationResponse(CamelModel):
+    brand_id: str
+    campaigns: List[GeneratedCampaign]
+    adaptation_strategies: List[AdaptationStrategy]
+    generated_at: str
