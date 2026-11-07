@@ -15,8 +15,6 @@ import {
   Globe,
   Building2,
   Target,
-  ShieldCheck,
-  Tag,
   Users,
 } from "lucide-react";
 
@@ -31,8 +29,8 @@ export function OnboardingForm({ onSuccess, userId }: OnboardingFormProps) {
     companyName: MOCK_BRAND_PROFILE.companyName,
     niche: MOCK_BRAND_PROFILE.niche,
     websiteUrl: MOCK_BRAND_PROFILE.websiteUrl,
-    usp: MOCK_BRAND_PROFILE.usp,
-    productRange: [...MOCK_BRAND_PROFILE.productRange],
+    usp: MOCK_BRAND_PROFILE.usp || "High-performance direct-to-consumer product offering",
+    productRange: [...(MOCK_BRAND_PROFILE.productRange || [])],
     brandVoice: MOCK_BRAND_PROFILE.brandVoice,
     targetAudience: {
       ageRange: MOCK_BRAND_PROFILE.targetAudience.ageRange,
@@ -43,9 +41,6 @@ export function OnboardingForm({ onSuccess, userId }: OnboardingFormProps) {
     },
   });
 
-  const [productsInput, setProductsInput] = useState(
-    formData.productRange.join(", ")
-  );
   const [interestsInput, setInterestsInput] = useState(
     formData.targetAudience.interests.join(", ")
   );
@@ -59,10 +54,8 @@ export function OnboardingForm({ onSuccess, userId }: OnboardingFormProps) {
 
     const payload: BrandOnboardingRequest = {
       ...formData,
-      productRange: productsInput
-        .split(",")
-        .map((p) => p.trim())
-        .filter(Boolean),
+      usp: formData.usp || "Direct-to-consumer brand offering",
+      productRange: formData.productRange?.length ? formData.productRange : ["Core Collection"],
       targetAudience: {
         ...formData.targetAudience,
         interests: interestsInput
@@ -102,139 +95,117 @@ export function OnboardingForm({ onSuccess, userId }: OnboardingFormProps) {
         geographies: [...MOCK_BRAND_PROFILE.targetAudience.geographies],
       },
     });
-    setProductsInput(MOCK_BRAND_PROFILE.productRange.join(", "));
     setInterestsInput(MOCK_BRAND_PROFILE.targetAudience.interests.join(", "));
     setPainPointsInput(MOCK_BRAND_PROFILE.targetAudience.painPoints.join(", "));
   };
 
   return (
-    <div className="w-full space-y-6">
-      {/* Top Banner / Bento Header */}
-      <div className="bg-[#13161c] rounded-3xl p-6 sm:p-8 border border-zinc-800/80 shadow-lg relative overflow-hidden">
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="space-y-2 max-w-xl">
-            <div className="inline-flex items-center gap-2 rounded-full bg-white/5 border border-white/10 text-zinc-300 text-xs px-3.5 py-1 font-medium backdrop-blur-sm">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#9e93d7] shadow-[0_0_6px_#9e93d7]" />
-              <span className="font-mono text-[11px] text-[#b5b1a6]">STEP 01</span>
-              <span className="text-zinc-600">&bull;</span>
-              <span className="text-[#9e93d7] font-medium">Brand Positioning Matrix</span>
-            </div>
-            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
-              Brand Positioning & Intelligence Matrix
-            </h2>
-            <p className="text-sm text-zinc-400 leading-relaxed">
-              Define your core value proposition and demographic parameters. Our AI pipeline benchmarks your unique angles against 60+ day scaled competitor campaigns.
-            </p>
-          </div>
-
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={loadPreset}
-            className="self-start md:self-center gap-2 rounded-full bg-white/5 border-zinc-700 hover:bg-white/10 text-zinc-200 text-xs py-2 px-4 transition-all"
-          >
-            <Sparkles className="w-3.5 h-3.5 text-[#e8b98d]" />
-            <span>Load Demo Brand (LumaFit)</span>
-          </Button>
+    <div className="w-full max-w-5xl mx-auto space-y-6">
+      {/* 1. Minimal Header (Linear / Vercel style) */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-zinc-800/80">
+        <div>
+          <h2 className="text-xl font-semibold text-white tracking-tight">
+            Brand Workspace &amp; Identity
+          </h2>
+          <p className="text-xs text-zinc-400 mt-1">
+            Configure your company profile and audience parameters to benchmark against competitors
+          </p>
         </div>
+
+        <Button
+          type="button"
+          variant="outline"
+          onClick={loadPreset}
+          className="rounded-full bg-zinc-900/60 border-zinc-800 text-zinc-300 text-xs hover:bg-zinc-800 hover:text-white px-4 py-1.5 cursor-pointer self-start sm:self-auto transition-colors gap-1.5"
+        >
+          <Sparkles className="w-3.5 h-3.5 text-zinc-400" />
+          <span>Load Preset</span>
+        </Button>
       </div>
 
-      {/* Main Bento Form Container */}
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div>
-          {/* Card 1: Core Identity (Clean Dark Bento Card) */}
-          <div className="bg-[#13161c] rounded-3xl p-6 sm:p-7 border border-zinc-800/80 shadow-sm space-y-5">
-            <div className="flex items-center justify-between pb-3 border-b border-zinc-800/60">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-[#9e93d7]">
-                  <Building2 className="w-4 h-4" />
-                </div>
-                <div>
-                  <h3 className="text-sm font-semibold text-white">Brand Entity</h3>
-                  <span className="text-[11px] text-[#b5b1a6] font-mono">Core identity & domain</span>
-                </div>
-              </div>
-              <span className="rounded-full bg-white/5 text-[#b5b1a6] border border-white/10 text-[11px] font-mono px-3 py-0.5">
-                Required
+      {/* 2. Form Cards */}
+      <form onSubmit={handleSubmit} className="space-y-5">
+        {/* Card 1: Core Entity & Market Positioning */}
+        <div className="rounded-2xl bg-zinc-900/40 border border-zinc-800/80 p-5 sm:p-6 space-y-4">
+          <div className="flex items-center justify-between pb-3 border-b border-zinc-800/60">
+            <div className="flex items-center gap-2">
+              <Building2 className="w-3.5 h-3.5 text-zinc-400" />
+              <span className="font-medium text-xs text-white">
+                Brand Entity &amp; Market
               </span>
             </div>
+            <span className="font-mono text-[11px] text-zinc-500">Core Profile</span>
+          </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-              {/* Company Name */}
-              <div className="space-y-1.5">
-                <label className="text-xs font-medium text-zinc-300">
-                  Company / Brand Name
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={formData.companyName}
-                  onChange={(e) =>
-                    setFormData({ ...formData, companyName: e.target.value })
-                  }
-                  placeholder="e.g. LumaFit"
-                  className="w-full px-5 py-2.5 rounded-2xl bg-[#1e232e] border border-zinc-800 text-zinc-100 placeholder:text-zinc-500 text-sm font-medium shadow-sm outline-none focus:border-[#9e93d7] focus:ring-1 focus:ring-[#9e93d7] transition-all"
-                />
-              </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {/* Company Name */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-zinc-300">
+                Company / Brand Name
+              </label>
+              <input
+                type="text"
+                required
+                value={formData.companyName}
+                onChange={(e) =>
+                  setFormData({ ...formData, companyName: e.target.value })
+                }
+                placeholder="e.g. LumaFit"
+                className="w-full px-3.5 py-2 rounded-xl bg-black/20 border border-zinc-800/60 text-zinc-100 placeholder:text-zinc-500 text-xs outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 transition-all font-sans"
+              />
+            </div>
 
-              {/* Website URL */}
-              <div className="space-y-1.5">
-                <label className="text-xs font-medium text-zinc-300 flex items-center gap-1.5">
-                  <Globe className="w-3.5 h-3.5 text-[#99d3df]" />
-                  Website URL
-                </label>
-                <input
-                  type="url"
-                  required
-                  value={formData.websiteUrl}
-                  onChange={(e) =>
-                    setFormData({ ...formData, websiteUrl: e.target.value })
-                  }
-                  placeholder="https://lumafit.com"
-                  className="w-full px-5 py-2.5 rounded-2xl bg-[#1e232e] border border-zinc-800 text-zinc-100 placeholder:text-zinc-500 text-sm font-medium shadow-sm outline-none focus:border-[#9e93d7] focus:ring-1 focus:ring-[#9e93d7] transition-all"
-                />
-              </div>
+            {/* Website URL */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-zinc-300 flex items-center gap-1.5">
+                <Globe className="w-3 h-3 text-zinc-400" />
+                Website Domain
+              </label>
+              <input
+                type="url"
+                required
+                value={formData.websiteUrl}
+                onChange={(e) =>
+                  setFormData({ ...formData, websiteUrl: e.target.value })
+                }
+                placeholder="https://lumafit.com"
+                className="w-full px-3.5 py-2 rounded-xl bg-black/20 border border-zinc-800/60 text-zinc-100 placeholder:text-zinc-500 text-xs outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 transition-all font-sans"
+              />
+            </div>
 
-              {/* Market Niche */}
-              <div className="space-y-1.5">
-                <label className="text-xs font-medium text-zinc-300 flex items-center gap-1.5">
-                  <Target className="w-3.5 h-3.5 text-[#9e93d7]" />
-                  Market Niche & Industry
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={formData.niche}
-                  onChange={(e) =>
-                    setFormData({ ...formData, niche: e.target.value })
-                  }
-                  placeholder="e.g. Women's High-Performance Activewear"
-                  className="w-full px-5 py-2.5 rounded-2xl bg-[#1e232e] border border-zinc-800 text-zinc-100 placeholder:text-zinc-500 text-sm font-medium shadow-sm outline-none focus:border-[#9e93d7] focus:ring-1 focus:ring-[#9e93d7] transition-all"
-                />
-              </div>
+            {/* Market Niche */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-zinc-300 flex items-center gap-1.5">
+                <Target className="w-3 h-3 text-zinc-400" />
+                Market Niche
+              </label>
+              <input
+                type="text"
+                required
+                value={formData.niche}
+                onChange={(e) =>
+                  setFormData({ ...formData, niche: e.target.value })
+                }
+                placeholder="e.g. Performance Activewear"
+                className="w-full px-3.5 py-2 rounded-xl bg-black/20 border border-zinc-800/60 text-zinc-100 placeholder:text-zinc-500 text-xs outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 transition-all font-sans"
+              />
             </div>
           </div>
         </div>
 
-        {/* Card 3: Target Demographic & Psychographics */}
-        <div className="bg-[#13161c] rounded-3xl p-6 sm:p-8 border border-zinc-800/80 shadow-sm space-y-5">
+        {/* Card 2: Target Audience & Friction */}
+        <div className="rounded-2xl bg-zinc-900/40 border border-zinc-800/80 p-5 sm:p-6 space-y-4">
           <div className="flex items-center justify-between pb-3 border-b border-zinc-800/60">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-full bg-[#9e93d7]/15 flex items-center justify-center text-[#9e93d7]">
-                <Users className="w-4 h-4" />
-              </div>
-              <div>
-                <h3 className="text-sm font-semibold text-white">Target Demographic & Psychographic Friction</h3>
-                <span className="text-[11px] text-[#b5b1a6] font-mono">Customer tension & emotional triggers</span>
-              </div>
+            <div className="flex items-center gap-2">
+              <Users className="w-3.5 h-3.5 text-zinc-400" />
+              <span className="font-medium text-xs text-white">
+                Target Demographic &amp; Friction Points
+              </span>
             </div>
-            <span className="rounded-full bg-white/5 border border-white/10 text-[#b5b1a6] text-xs px-3 py-0.5 font-medium font-mono">
-              Audience Data
-            </span>
+            <span className="font-mono text-[11px] text-zinc-500">Audience Data</span>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1.5">
               <label className="text-xs font-medium text-zinc-300">
                 Primary Age Demographic
@@ -252,7 +223,7 @@ export function OnboardingForm({ onSuccess, userId }: OnboardingFormProps) {
                   })
                 }
                 placeholder="24–38 years old"
-                className="w-full px-5 py-2.5 rounded-2xl bg-[#1e232e] border border-zinc-800 text-zinc-100 placeholder:text-zinc-500 text-sm font-medium shadow-sm outline-none focus:border-[#9e93d7] focus:ring-1 focus:ring-[#9e93d7] transition-all"
+                className="w-full px-3.5 py-2 rounded-xl bg-black/20 border border-zinc-800/60 text-zinc-100 placeholder:text-zinc-500 text-xs outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 transition-all font-sans"
               />
             </div>
 
@@ -272,58 +243,59 @@ export function OnboardingForm({ onSuccess, userId }: OnboardingFormProps) {
                     },
                   })
                 }
-                placeholder="US, UK, Australia, Canada, EU"
-                className="w-full px-5 py-2.5 rounded-2xl bg-[#1e232e] border border-zinc-800 text-zinc-100 placeholder:text-zinc-500 text-sm font-medium shadow-sm outline-none focus:border-[#9e93d7] focus:ring-1 focus:ring-[#9e93d7] transition-all"
+                placeholder="US, UK, Canada, EU"
+                className="w-full px-3.5 py-2 rounded-xl bg-black/20 border border-zinc-800/60 text-zinc-100 placeholder:text-zinc-500 text-xs outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 transition-all font-sans"
               />
             </div>
 
             <div className="space-y-1.5">
               <label className="text-xs font-medium text-zinc-300">
-                Core Customer Pain Points <span className="text-[#b5b1a6] text-[11px] font-mono">(comma-separated)</span>
+                Customer Friction Points <span className="text-zinc-500 text-[11px] font-mono">(comma-separated)</span>
               </label>
               <input
                 type="text"
                 value={painPointsInput}
                 onChange={(e) => setPainPointsInput(e.target.value)}
-                placeholder="leggings sliding down, see-through fabric, waistband rolling"
-                className="w-full px-5 py-2.5 rounded-2xl bg-[#1e232e] border border-zinc-800 text-zinc-100 placeholder:text-zinc-500 text-sm font-medium shadow-sm outline-none focus:border-[#9e93d7] focus:ring-1 focus:ring-[#9e93d7] transition-all"
+                placeholder="fading fabric, rolling waistbands, hidden markups"
+                className="w-full px-3.5 py-2 rounded-xl bg-black/20 border border-zinc-800/60 text-zinc-100 placeholder:text-zinc-500 text-xs outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 transition-all font-sans"
               />
             </div>
 
             <div className="space-y-1.5">
               <label className="text-xs font-medium text-zinc-300">
-                Key Interests & Behavioral Triggers <span className="text-[#b5b1a6] text-[11px] font-mono">(comma-separated)</span>
+                Key Interests &amp; Behavioral Triggers <span className="text-zinc-500 text-[11px] font-mono">(comma-separated)</span>
               </label>
               <input
                 type="text"
                 value={interestsInput}
                 onChange={(e) => setInterestsInput(e.target.value)}
-                placeholder="pilates, strength training, wellness, functional athleisure"
-                className="w-full px-5 py-2.5 rounded-2xl bg-[#1e232e] border border-zinc-800 text-zinc-100 placeholder:text-zinc-500 text-sm font-medium shadow-sm outline-none focus:border-[#9e93d7] focus:ring-1 focus:ring-[#9e93d7] transition-all"
+                placeholder="strength training, clean eating, functional design"
+                className="w-full px-3.5 py-2 rounded-xl bg-black/20 border border-zinc-800/60 text-zinc-100 placeholder:text-zinc-500 text-xs outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 transition-all font-sans"
               />
             </div>
           </div>
         </div>
 
-        {/* Action Bar with White Pill CTA */}
+        {/* 3. Action Footer */}
         <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <span className="text-xs text-[#b5b1a6] font-mono">
-            Pipeline Step 1 / 4 &bull; Autonomous competitor crawl initiated upon submission.
+          <span className="text-[11px] text-zinc-500 font-mono">
+            Pipeline Step 1 / 4 &bull; Autonomous competitor crawl initiated upon submission
           </span>
+
           <Button
             type="submit"
             disabled={loading}
-            className="w-full sm:w-auto rounded-full bg-white text-zinc-950 font-semibold px-8 py-3 text-sm hover:bg-zinc-200 transition-all shadow-md gap-2"
+            className="w-full sm:w-auto rounded-full bg-white text-zinc-950 font-medium px-6 py-2.5 text-xs hover:bg-zinc-200 transition-colors shadow-xs gap-2 cursor-pointer"
           >
             {loading ? (
               <>
-                <Loader2 className="w-4 h-4 animate-spin text-zinc-950" />
-                Scanning Market & Rivals...
+                <Loader2 className="w-3.5 h-3.5 animate-spin text-zinc-950" />
+                <span>Scanning Market &amp; Competitors...</span>
               </>
             ) : (
               <>
-                Proceed to Competitor Vault
-                <ArrowRight className="w-4 h-4" />
+                <span>Proceed to Competitor Radar</span>
+                <ArrowRight className="w-3.5 h-3.5" />
               </>
             )}
           </Button>
