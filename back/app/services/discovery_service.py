@@ -23,11 +23,11 @@ class DiscoveryService:
         - Accepts brand_id or niche or brand_profile.
         - Searches top market competitors using Tavily API.
         - Uses LangChain + Groq/Gemini to extract competitor reach, tier, channels, summary, and market snapshot.
-        - Saves to Supabase competitors table.
+        - Saves to Supabase `competitors` table.
         - Falls back gracefully to intelligent LLM generation or rich mock data.
         """
         now_iso = datetime.now(timezone.utc).isoformat()
-        brand_id = payload.brand_id or (payload.brand_profile.id if payload.brand_profile else "brand_demo_1")
+        brand_id = payload.brand_id or (payload.brand_profile.id if payload.brand_profile else str(uuid.uuid4()))
         
         niche = payload.niche
         if not niche and payload.brand_profile:
@@ -99,7 +99,7 @@ class DiscoveryService:
                 logo_url = item.logo_url or f"https://logo.clearbit.com/{domain}"
                 competitors.append(
                     Competitor(
-                        id=f"comp_{uuid.uuid4().hex[:24]}",
+                        id=str(uuid.uuid4()),
                         brand_id=brand_id,
                         name=item.name,
                         website_url=item.website_url,
@@ -131,7 +131,7 @@ class DiscoveryService:
             # Fallback to rich mock data with current brand_id
             competitors = [
                 Competitor(
-                    id=f"comp_{uuid.uuid4().hex[:24]}",
+                    id=str(uuid.uuid4()),
                     brand_id=brand_id,
                     name=c.name,
                     website_url=c.website_url,

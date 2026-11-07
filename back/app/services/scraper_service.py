@@ -20,7 +20,6 @@ class ScraperService:
             async with httpx.AsyncClient(timeout=timeout, follow_redirects=True) as client:
                 response = await client.get(jina_endpoint, headers=headers)
                 if response.status_code == 200 and response.text:
-                    # Limit content to first ~12,000 characters to keep prompt fast and within token limits
                     return response.text[:12000]
         except Exception:
             pass
@@ -33,7 +32,6 @@ class ScraperService:
             return None
 
         try:
-            # tavily-python is synchronous or we can use REST API with httpx for pure async
             async with httpx.AsyncClient(timeout=timeout) as client:
                 payload = {
                     "api_key": settings.TAVILY_API_KEY,
@@ -49,5 +47,29 @@ class ScraperService:
         except Exception:
             pass
         return None
+
+    @staticmethod
+    async def scrape_live_competitor_ads(competitor_name: str, max_results: int = 3) -> List[Dict[str, Any]]:
+        """
+        Scrape real active competitor ad copies and creatives.
+        Queries Meta Ad Library index via Tavily search for authentic live ads.
+        """
+        ads = []
+        results = await ScraperService.search_with_tavily(
+            query=f'site:facebook.com/ads/library "{competitor_name}" active ad creative text copy',
+            max_results=max_results,
+        )
+        if results:
+            for idx, r in enumerate(results):
+                content = r.get("content", "").strip()
+                title = r.get("title", "").strip()
+                if content:
+                    ads.append({
+                        "adCopy": content,
+                        "headline": title.split(" - ")[0] if " - " in title else title,
+                        "platform": "facebook" if idx % 2 == 0 else "instagram",
+                        "landingPageUrl": r.get("url"),
+                    })
+        return ads
 
 scraper_service = ScraperService()

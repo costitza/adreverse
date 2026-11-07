@@ -1,4 +1,4 @@
-from typing import List, Optional, Literal, Generic, TypeVar
+from typing import List, Optional, Literal, Generic, TypeVar, Dict
 from pydantic import BaseModel, ConfigDict, Field
 from pydantic.alias_generators import to_camel
 
@@ -53,11 +53,11 @@ class PaginationMeta(CamelModel):
 # ---------------------------------------------------------------------------
 
 class TargetAudience(CamelModel):
-    age_range: str = Field(description="e.g. '25-45'")
-    genders: List[Literal["male", "female", "all"]]
-    interests: List[str]
-    pain_points: List[str]
-    geographies: List[str]
+    age_range: str = Field(default="25-45", description="e.g. '25-45'")
+    genders: List[Literal["male", "female", "all"]] = Field(default_factory=lambda: ["all"])
+    interests: List[str] = Field(default_factory=list)
+    pain_points: List[str] = Field(default_factory=list)
+    geographies: List[str] = Field(default_factory=list)
 
 class BrandProfile(CamelModel):
     id: str
@@ -86,7 +86,6 @@ class BrandOnboardingRequest(CamelModel):
     product_range: Optional[List[str]] = Field(default_factory=list)
     brand_voice: Optional[BrandVoice] = None
     target_audience: Optional[TargetAudience] = None
-    # For quick onboarding with just URL or free text
     brand_description: Optional[str] = None
     user_id: Optional[str] = None
 
@@ -94,7 +93,6 @@ class BrandOnboardingResponse(CamelModel):
     brand: BrandProfile
     extracted_insights: BrandInsights
 
-# Also alias for request body matching prompt instructions if needed
 BrandOnboardRequest = BrandOnboardingRequest
 BrandOnboardResponse = BrandOnboardingResponse
 
@@ -103,11 +101,11 @@ BrandOnboardResponse = BrandOnboardingResponse
 # ---------------------------------------------------------------------------
 
 class ActiveChannels(CamelModel):
-    meta: bool
-    tiktok: bool
-    instagram: bool
+    meta: bool = True
+    tiktok: bool = True
+    instagram: bool = True
     youtube: Optional[bool] = False
-    google: Optional[bool] = False
+    google: Optional[bool] = True
 
 class Competitor(CamelModel):
     id: str
@@ -145,3 +143,62 @@ class MarketDiscoveryResponse(CamelModel):
 
 DiscoverCompetitorsRequest = MarketDiscoveryRequest
 DiscoverCompetitorsResponse = MarketDiscoveryResponse
+
+# ---------------------------------------------------------------------------
+# STEP 3 — AD SCRAPING & REVERSE ENGINEERING
+# ---------------------------------------------------------------------------
+
+class CompetitorAd(CamelModel):
+    ad_id: str
+    competitor_id: str
+    brand_id: str
+    platform: Platform
+    media_url: str
+    thumbnail_url: Optional[str] = None
+    ad_copy: str
+    headline: Optional[str] = None
+    cta_text: str
+    days_active: int
+    estimated_impressions: Optional[int] = None
+    target_demographic: Optional[str] = None
+    landing_page_url: Optional[str] = None
+    scraped_at: str
+
+class AdBreakdown(CamelModel):
+    hook: str
+    hook_type: HookType
+    pain_point: str
+    mechanism: str
+    offer_structure: str
+    vulnerability_gap: str
+    effectiveness_score: int  # 0–100
+    emotional_triggers: List[str]
+    persuasion_framework: str
+    estimated_cpm: Optional[float] = None
+    keyword_density: Optional[Dict[str, int]] = None
+
+class AdAnalysisResult(CamelModel):
+    ad: CompetitorAd
+    breakdown: AdBreakdown
+    analysed_at: str
+
+class AdAnalysisRequest(CamelModel):
+    brand_id: str
+    competitor_id: str
+    ad_ids: Optional[List[str]] = None
+    force_refresh: Optional[bool] = False
+
+class AdAggregateSummary(CamelModel):
+    total_ads_analysed: int
+    avg_effectiveness_score: float
+    most_used_hook_type: HookType
+    most_used_platform: Platform
+    common_pain_points: List[str]
+    common_emotional_triggers: List[str]
+    top_vulnerability_gap: str
+
+class AdAnalysisResponse(CamelModel):
+    brand_id: str
+    competitor_id: str
+    analyses: List[AdAnalysisResult]
+    aggregate_summary: AdAggregateSummary

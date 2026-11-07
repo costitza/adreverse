@@ -10,3 +10,9 @@ if settings.SUPABASE_URL and settings.SUPABASE_KEY:
     except Exception as e:
         print(f"Warning: Failed to initialize Supabase client: {e}")
         supabase = None
+
+
+def get_supabase_client() -> Client:
+    if supabase is None:
+        raise RuntimeError("Clientul Supabase nu a fost inițializat. Verifică SUPABASE_URL și SUPABASE_KEY în .env.")
+    return supabase

@@ -26,7 +26,7 @@ class BrandService:
         - Accepts URL, partial profile, or free-text brand description.
         - Scrapes website content using Jina Reader.
         - Uses LangChain + Groq/Gemini to extract USP, voice, audience, product range, and insights.
-        - Saves to Supabase.
+        - Saves to Supabase `brand_profiles`.
         - Employs fallback to mock data on rate limits / failures.
         """
         effective_user_id = (
@@ -35,7 +35,7 @@ class BrandService:
             or "user_" + uuid.uuid4().hex[:16]
         )
         now_iso = datetime.now(timezone.utc).isoformat()
-        brand_id = f"brand_{uuid.uuid4().hex[:24]}"
+        brand_id = str(uuid.uuid4())
 
         scraped_content = ""
         target_url = payload.website_url or ""
@@ -126,7 +126,7 @@ class BrandService:
 
         # Persist to Supabase asynchronously with safety
         try:
-            await db_service.save_brand_profile(brand_profile)
+            await db_service.save_brand_profile(brand_profile, insights=insights)
         except Exception:
             pass
 

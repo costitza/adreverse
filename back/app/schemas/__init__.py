@@ -20,6 +20,12 @@ from app.schemas.domain import (
     MarketDiscoveryResponse,
     DiscoverCompetitorsRequest,
     DiscoverCompetitorsResponse,
+    CompetitorAd,
+    AdBreakdown,
+    AdAnalysisResult,
+    AdAnalysisRequest,
+    AdAggregateSummary,
+    AdAnalysisResponse,
 )
 
 __all__ = [
@@ -44,4 +50,10 @@ __all__ = [
     "MarketDiscoveryResponse",
     "DiscoverCompetitorsRequest",
     "DiscoverCompetitorsResponse",
+    "CompetitorAd",
+    "AdBreakdown",
+    "AdAnalysisResult",
+    "AdAnalysisRequest",
+    "AdAggregateSummary",
+    "AdAnalysisResponse",
 ]
