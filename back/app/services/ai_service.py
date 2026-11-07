@@ -60,43 +60,56 @@ class MarketDiscoveryResultLLM(BaseModel):
 
 def get_llm():
     """
-    Return active, high-speed LLM with multi-tier fallback:
-    1. Primary: Groq 'qwen/qwen3.8-27b'
+    Return active, high-speed LLM with multi-tier automatic fallback:
+    1. Primary Groq: 'openai/gpt-oss-20b' (ultra-fast direct response ~0.3s)
     2. Fallback Groq 2: 'openai/gpt-oss-120b'
-    3. Fallback Groq 3: 'openai/gpt-oss-20b'
-    4. Fallback Google Gemini: 'gemini-3.8-flash'
+    3. Fallback Groq 3: 'qwen/qwen3.8-27b'
+    4. Fallback Google Gemini: 'gemini-3.5-flash-lite'
     """
-    # 1. Primary & Secondary Groq models
+    candidates = []
+
+    # 1. Groq models
     if settings.GROQ_API_KEY and settings.GROQ_API_KEY.strip():
         groq_models = [
-            "qwen/qwen3.8-27b",
-            "openai/gpt-oss-120b",
             "openai/gpt-oss-20b",
+            "openai/gpt-oss-120b",
+            "qwen/qwen3.8-27b",
         ]
         for m in groq_models:
             try:
-                return ChatGroq(
-                    model=m,
-                    api_key=settings.GROQ_API_KEY.strip(),
-                    temperature=0.2,
-                    timeout=15,
+                candidates.append(
+                    ChatGroq(
+                        model=m,
+                        api_key=settings.GROQ_API_KEY.strip(),
+                        temperature=0.2,
+                        timeout=15,
+                    )
                 )
             except Exception:
                 continue
 
-    # 2. Secondary fallback: Google Gemini
+    # 2. Google Gemini models
     gemini_key = settings.GEMINI_API_KEY or settings.GOOGLE_API_KEY
     if gemini_key and gemini_key.strip():
-        gemini_models = ["gemini-3.8-flash", "gemini-flash-latest"]
+        gemini_models = ["gemini-3.5-flash-lite", "gemini-3.8-flash"]
         for m in gemini_models:
             try:
-                return ChatGoogleGenerativeAI(
-                    model=m,
-                    google_api_key=gemini_key.strip(),
-                    temperature=0.2,
-                    timeout=20,
+                candidates.append(
+                    ChatGoogleGenerativeAI(
+                        model=m,
+                        google_api_key=gemini_key.strip(),
+                        temperature=0.2,
+                        timeout=15,
+                    )
                 )
             except Exception:
                 continue
 
-    return None
+    if not candidates:
+        return None
+
+    # Chain primary model with fallbacks
+    primary = candidates[0]
+    if len(candidates) > 1:
+        return primary.with_fallbacks(candidates[1:])
+    return primary

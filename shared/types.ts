@@ -297,6 +297,7 @@ export interface CampaignGenerationRequest {
   competitorAdIds: string[]; // Ads to use as reverse-engineering input
   strategyAngles: StrategyAngle[]; // Which angles to generate (1–3)
   customInstructions?: string; // Optional free-text guidance from user
+  forceRefresh?: boolean;
 }
 
 /** POST /api/campaign/generate — response body */

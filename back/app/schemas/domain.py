@@ -254,6 +254,7 @@ class CampaignGenerationRequest(CamelModel):
         default_factory=lambda: ["direct_comparison", "problem_agitation", "social_proof_reviews"]
     )
     custom_instructions: Optional[str] = None
+    force_refresh: Optional[bool] = False
 
 class CampaignGenerationResponse(CamelModel):
     brand_id: str

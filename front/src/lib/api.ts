@@ -204,23 +204,32 @@ export async function analyzeAd(
 export async function generateCounterCampaign(
   payload: CampaignGenerationRequest
 ): Promise<CampaignGenerationResponse> {
-  const filteredCampaigns = MOCK_GENERATED_CAMPAIGNS.filter((c) =>
-    payload.strategyAngles?.length ? payload.strategyAngles.includes(c.angleUsed) : true
-  );
+  const url = `${API_BASE_URL}/api/campaign/generate`;
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 90000);
 
-  const fallbackResponse: CampaignGenerationResponse = {
-    brandId: payload.brandId,
-    campaigns: filteredCampaigns.length > 0 ? filteredCampaigns : MOCK_GENERATED_CAMPAIGNS,
-    adaptationStrategies: MOCK_ADAPTATION_STRATEGIES,
-    generatedAt: new Date().toISOString(),
-  };
-
-  return fetchWithFallback<CampaignGenerationResponse>(
-    "/api/campaign/generate",
-    {
+  try {
+    const response = await fetch(url, {
       method: "POST",
+      signal: controller.signal,
+      headers: {
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify(payload),
-    },
-    fallbackResponse
-  );
+    });
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      const errText = await response.text();
+      throw new Error(`[API Error ${response.status}] ${errText}`);
+    }
+
+    const payloadJson = await response.json();
+    return payloadJson as CampaignGenerationResponse;
+  } catch (error) {
+    clearTimeout(timeoutId);
+    console.error("[generateCounterCampaign Failed]", error);
+    throw error;
+  }
 }

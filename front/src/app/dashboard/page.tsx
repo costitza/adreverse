@@ -133,6 +133,11 @@ export default function DashboardPage() {
           }));
           setCompetitors(mappedCompetitors);
           setMarketSnapshot(MOCK_MARKET_SNAPSHOT);
+
+          if (fullVault.campaigns && fullVault.campaigns.length > 0) {
+            setCampaigns(fullVault.campaigns);
+          }
+
           setCurrentStep(2);
         } else {
           setCurrentStep(1);
@@ -219,8 +224,17 @@ export default function DashboardPage() {
     setLoading(true);
 
     try {
+      const activeBrand = onboardingData?.brand?.id || activeBrandId;
+      if (!activeBrand) {
+        alert("Please select or onboard a brand profile first.");
+        setLoading(false);
+        return;
+      }
+
+      console.log(`[Dashboard] Generating counter campaign for brand: ${activeBrand}, adIds:`, selectedAdIds);
+
       const campaignResp = await generateCounterCampaign({
-        brandId: onboardingData?.brand.id || "brand_01JF2XK8QR5VNTPM3GHYD6W0A",
+        brandId: activeBrand,
         competitorAdIds: selectedAdIds,
         strategyAngles: [
           "direct_comparison",
@@ -229,11 +243,18 @@ export default function DashboardPage() {
         ],
       });
 
-      setCampaigns(campaignResp.campaigns);
-      setAdaptationStrategies(campaignResp.adaptationStrategies);
-      setCurrentStep(4);
-    } catch (err) {
+      console.log("[Dashboard] Campaigns received:", campaignResp);
+
+      if (campaignResp && campaignResp.campaigns && campaignResp.campaigns.length > 0) {
+        setCampaigns(campaignResp.campaigns);
+        setAdaptationStrategies(campaignResp.adaptationStrategies || []);
+        setCurrentStep(4);
+      } else {
+        alert("Campaign generation returned no campaigns.");
+      }
+    } catch (err: any) {
       console.error("Campaign generation error:", err);
+      alert(`Campaign generation failed: ${err.message || "Network / Backend Error"}`);
     } finally {
       setLoading(false);
     }
