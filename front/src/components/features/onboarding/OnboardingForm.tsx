@@ -174,7 +174,7 @@ export function OnboardingForm({ onSuccess }: OnboardingFormProps) {
                   setFormData({ ...formData, companyName: e.target.value })
                 }
                 placeholder="e.g. LumaFit"
-                className="w-full px-5 py-2.5 rounded-full bg-white text-zinc-950 placeholder:text-zinc-500 text-sm font-medium shadow-sm outline-none focus:ring-2 focus:ring-[#9e93d7] transition-all"
+                className="w-full px-5 py-2.5 rounded-xl bg-[#363e4f] border border-zinc-800 text-zinc-100 placeholder:text-zinc-500 text-sm font-medium shadow-sm outline-none focus:border-[#9e93d7] focus:ring-1 focus:ring-[#9e93d7] transition-all"
               />
             </div>
 
@@ -192,7 +192,7 @@ export function OnboardingForm({ onSuccess }: OnboardingFormProps) {
                   setFormData({ ...formData, websiteUrl: e.target.value })
                 }
                 placeholder="https://lumafit.com"
-                className="w-full px-5 py-2.5 rounded-full bg-white text-zinc-950 placeholder:text-zinc-500 text-sm font-medium shadow-sm outline-none focus:ring-2 focus:ring-[#9e93d7] transition-all"
+                className="w-full px-5 py-2.5 rounded-xl bg-[#363e4f] border border-zinc-800 text-zinc-100 placeholder:text-zinc-500 text-sm font-medium shadow-sm outline-none focus:border-[#9e93d7] focus:ring-1 focus:ring-[#9e93d7] transition-all"
               />
             </div>
 
@@ -210,7 +210,7 @@ export function OnboardingForm({ onSuccess }: OnboardingFormProps) {
                   setFormData({ ...formData, niche: e.target.value })
                 }
                 placeholder="e.g. Women's High-Performance Activewear"
-                className="w-full px-5 py-2.5 rounded-full bg-white text-zinc-950 placeholder:text-zinc-500 text-sm font-medium shadow-sm outline-none focus:ring-2 focus:ring-[#9e93d7] transition-all"
+                className="w-full px-5 py-2.5 rounded-xl bg-[#363e4f] border border-zinc-800 text-zinc-100 placeholder:text-zinc-500 text-sm font-medium shadow-sm outline-none focus:border-[#9e93d7] focus:ring-1 focus:ring-[#9e93d7] transition-all"
               />
             </div>
 
@@ -228,7 +228,7 @@ export function OnboardingForm({ onSuccess }: OnboardingFormProps) {
                     brandVoice: e.target.value as BrandVoice,
                   })
                 }
-                className="w-full px-5 py-2.5 rounded-full bg-white text-zinc-950 text-sm font-medium shadow-sm outline-none focus:ring-2 focus:ring-[#9e93d7] transition-all capitalize cursor-pointer"
+                className="w-full px-5 py-2.5 rounded-xl bg-[#363e4f] border border-zinc-800 text-zinc-100 text-sm font-medium shadow-sm outline-none focus:border-[#9e93d7] focus:ring-1 focus:ring-[#9e93d7] transition-all capitalize cursor-pointer"
               >
                 <option value="inspirational">Inspirational & Empowering</option>
                 <option value="authoritative">Authoritative & Evidence-based</option>
@@ -271,7 +271,7 @@ export function OnboardingForm({ onSuccess }: OnboardingFormProps) {
                     setFormData({ ...formData, usp: e.target.value })
                   }
                   placeholder="e.g. Sculpting activewear built with breathable recycled ocean fiber with 100% zero-sheer squat guarantee."
-                  className="w-full px-5 py-3 rounded-2xl bg-white text-zinc-950 placeholder:text-zinc-500 text-sm font-medium shadow-sm outline-none focus:ring-2 focus:ring-[#e9b0ce] transition-all resize-none"
+                  className="w-full px-5 py-3 rounded-xl bg-[#363e4f] border border-zinc-800 text-zinc-100 placeholder:text-zinc-500 text-sm font-medium shadow-sm outline-none focus:border-[#9e93d7] focus:ring-1 focus:ring-[#9e93d7] transition-all resize-none"
                 />
               </div>
 
@@ -286,7 +286,7 @@ export function OnboardingForm({ onSuccess }: OnboardingFormProps) {
                   value={productsInput}
                   onChange={(e) => setProductsInput(e.target.value)}
                   placeholder="High-waist Leggings, Compression Bras, Workout Sets"
-                  className="w-full px-5 py-2.5 rounded-full bg-white text-zinc-950 placeholder:text-zinc-500 text-sm font-medium shadow-sm outline-none focus:ring-2 focus:ring-[#e9b0ce] transition-all"
+                  className="w-full px-5 py-2.5 rounded-xl bg-[#363e4f] border border-zinc-800 text-zinc-100 placeholder:text-zinc-500 text-sm font-medium shadow-sm outline-none focus:border-[#9e93d7] focus:ring-1 focus:ring-[#9e93d7] transition-all"
                 />
               </div>
             </div>
@@ -332,7 +332,7 @@ export function OnboardingForm({ onSuccess }: OnboardingFormProps) {
                   })
                 }
                 placeholder="24–38 years old"
-                className="w-full px-5 py-2.5 rounded-full bg-white text-zinc-950 placeholder:text-zinc-500 text-sm font-medium shadow-sm outline-none focus:ring-2 focus:ring-[#9e93d7]"
+                className="w-full px-5 py-2.5 rounded-xl bg-[#363e4f] border border-zinc-800 text-zinc-100 placeholder:text-zinc-500 text-sm font-medium shadow-sm outline-none focus:border-[#9e93d7] focus:ring-1 focus:ring-[#9e93d7] transition-all"
               />
             </div>
 
@@ -353,7 +353,7 @@ export function OnboardingForm({ onSuccess }: OnboardingFormProps) {
                   })
                 }
                 placeholder="US, UK, Australia, Canada, EU"
-                className="w-full px-5 py-2.5 rounded-full bg-white text-zinc-950 placeholder:text-zinc-500 text-sm font-medium shadow-sm outline-none focus:ring-2 focus:ring-[#9e93d7]"
+                className="w-full px-5 py-2.5 rounded-xl bg-[#363e4f] border border-zinc-800 text-zinc-100 placeholder:text-zinc-500 text-sm font-medium shadow-sm outline-none focus:border-[#9e93d7] focus:ring-1 focus:ring-[#9e93d7] transition-all"
               />
             </div>
 
@@ -366,7 +366,7 @@ export function OnboardingForm({ onSuccess }: OnboardingFormProps) {
                 value={painPointsInput}
                 onChange={(e) => setPainPointsInput(e.target.value)}
                 placeholder="leggings sliding down, see-through fabric, waistband rolling"
-                className="w-full px-5 py-2.5 rounded-full bg-white text-zinc-950 placeholder:text-zinc-500 text-sm font-medium shadow-sm outline-none focus:ring-2 focus:ring-[#e9b0ce]"
+                className="w-full px-5 py-2.5 rounded-xl bg-[#363e4f] border border-zinc-800 text-zinc-100 placeholder:text-zinc-500 text-sm font-medium shadow-sm outline-none focus:border-[#9e93d7] focus:ring-1 focus:ring-[#9e93d7] transition-all"
               />
             </div>
 
@@ -379,7 +379,7 @@ export function OnboardingForm({ onSuccess }: OnboardingFormProps) {
                 value={interestsInput}
                 onChange={(e) => setInterestsInput(e.target.value)}
                 placeholder="pilates, strength training, wellness, functional athleisure"
-                className="w-full px-5 py-2.5 rounded-full bg-white text-zinc-950 placeholder:text-zinc-500 text-sm font-medium shadow-sm outline-none focus:ring-2 focus:ring-[#9e93d7]"
+                className="w-full px-5 py-2.5 rounded-xl bg-[#363e4f] border border-zinc-800 text-zinc-100 placeholder:text-zinc-500 text-sm font-medium shadow-sm outline-none focus:border-[#9e93d7] focus:ring-1 focus:ring-[#9e93d7] transition-all"
               />
             </div>
           </div>

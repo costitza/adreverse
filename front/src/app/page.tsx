@@ -40,11 +40,6 @@ import { BrandLogo } from "@/components/layout/BrandLogo";
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col font-sans selection:bg-primary/20 selection:text-primary">
-      {/* Top Banner */}
-      <div className="bg-gradient-to-r from-violet-600 via-indigo-600 to-blue-600 text-white text-xs font-medium py-2 px-4 text-center tracking-wide">
-        🚀 Powered by Groq Llama 3.3 & Llama 3.2 Vision • Competitor Reverse-Engineering Engine
-      </div>
-
       {/* Main Navigation (Client Island) */}
       <Suspense
         fallback={
