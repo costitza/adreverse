@@ -8,75 +8,52 @@ import {
   UserButton,
 } from "@clerk/nextjs";
 import {
-  Sparkles,
   ArrowRight,
-  ShieldCheck,
-  Search,
-  Cpu,
-  Video,
-  BarChart3,
-  CheckCircle,
-  Zap,
-  TrendingUp,
-  Target,
-  Play,
-  Layers,
-  ChevronRight,
   ExternalLink,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
+import { BrandLogo } from "@/components/layout/BrandLogo";
+
 export function LandingNavbar() {
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-md">
+    <header className="sticky top-0 z-50 w-full border-b border-zinc-800/80 bg-[#0d0f12]/90 backdrop-blur-md">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2.5 group">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-violet-600 to-indigo-600 flex items-center justify-center text-white font-black text-base shadow-sm group-hover:scale-105 transition-transform">
-            AR
-          </div>
-          <div>
-            <span className="font-bold text-lg tracking-tight block leading-tight">
-              AdReverse AI
-            </span>
-            <span className="text-[10px] text-muted-foreground uppercase tracking-widest block font-medium">
-              Intelligence & Counter-Ads
-            </span>
-          </div>
-        </Link>
+        <BrandLogo />
 
-        <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-muted-foreground">
-          <a href="#how-it-works" className="hover:text-foreground transition-colors">
-            How It Works
+        <nav className="hidden md:flex items-center gap-7 text-xs font-mono text-zinc-400">
+          <a href="#how-it-works" className="hover:text-white transition-colors">
+            Framework
           </a>
-          <a href="#features" className="hover:text-foreground transition-colors">
-            Features
+          <a href="#features" className="hover:text-white transition-colors">
+            Deconstruction
           </a>
-          <a href="#demo-preview" className="hover:text-foreground transition-colors">
-            Ad Breakdown
+          <a href="#demo-preview" className="hover:text-white transition-colors">
+            Live Sample
           </a>
-          <a href="#pricing" className="hover:text-foreground transition-colors">
-            Value ROI
+          <a href="#pricing" className="hover:text-white transition-colors">
+            ROI Metrics
           </a>
         </nav>
 
         <div className="flex items-center gap-3">
           <Show when="signed-out">
-            <SignInButton mode="modal">
-              <Button variant="ghost" size="sm" className="font-medium text-xs sm:text-sm">
+            <SignInButton mode="modal" forceRedirectUrl="/dashboard">
+              <Button variant="ghost" size="sm" className="font-mono text-xs text-zinc-400 hover:text-white hover:bg-zinc-800/60">
                 Sign In
               </Button>
             </SignInButton>
-            <SignUpButton mode="modal">
-              <Button size="sm" className="gap-1.5 font-semibold text-xs sm:text-sm shadow-sm bg-gradient-to-r from-violet-600 to-indigo-600 hover:opacity-95 text-white">
-                Get Started Free
+            <SignUpButton mode="modal" forceRedirectUrl="/dashboard">
+              <Button size="sm" className="rounded-lg bg-white text-zinc-950 font-medium px-4 py-2 text-xs hover:bg-zinc-200 transition-all gap-1.5">
+                Start Audit
                 <ArrowRight className="w-3.5 h-3.5" />
               </Button>
             </SignUpButton>
           </Show>
           <Show when="signed-in">
             <Link href="/dashboard">
-              <Button size="sm" className="gap-1.5 font-medium text-xs sm:text-sm">
-                Go to App
+              <Button size="sm" className="rounded-lg bg-white text-zinc-950 font-medium px-4 py-2 text-xs hover:bg-zinc-200 transition-all gap-1.5">
+                Dashboard
                 <ArrowRight className="w-3.5 h-3.5" />
               </Button>
             </Link>
@@ -92,27 +69,27 @@ export function LandingNavbar() {
 
 export function HeroAuthActions() {
   return (
-    <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
+    <div className="flex flex-col sm:flex-row items-center gap-3">
       <Show when="signed-out">
-        <SignUpButton mode="modal">
-          <Button size="lg" className="h-12 px-8 text-base font-semibold shadow-lg shadow-violet-500/20 bg-gradient-to-r from-violet-600 to-indigo-600 hover:opacity-95 text-white gap-2 w-full sm:w-auto">
-            Launch Free Audit
+        <SignUpButton mode="modal" forceRedirectUrl="/dashboard">
+          <Button size="lg" className="rounded-lg bg-white text-zinc-950 font-medium px-6 py-2.5 text-sm hover:bg-zinc-200 transition-all gap-2 w-full sm:w-auto">
+            Audit Competitor Ads Free
             <ArrowRight className="w-4 h-4" />
           </Button>
         </SignUpButton>
       </Show>
       <Show when="signed-in">
         <Link href="/dashboard" className="w-full sm:w-auto">
-          <Button size="lg" className="h-12 px-8 text-base font-semibold shadow-lg shadow-violet-500/20 bg-gradient-to-r from-violet-600 to-indigo-600 hover:opacity-95 text-white gap-2 w-full">
-            Open Workspace
+          <Button size="lg" className="rounded-lg bg-white text-zinc-950 font-medium px-6 py-2.5 text-sm hover:bg-zinc-200 transition-all gap-2 w-full">
+            Open Dashboard
             <ArrowRight className="w-4 h-4" />
           </Button>
         </Link>
       </Show>
       <Link href="/dashboard" className="w-full sm:w-auto">
-        <Button variant="outline" size="lg" className="h-12 px-8 text-base font-medium w-full sm:w-auto gap-2">
-          <Play className="w-4 h-4 fill-current text-muted-foreground" />
-          Explore Live Demo
+        <Button variant="outline" size="lg" className="rounded-lg bg-zinc-900 border-zinc-700/80 text-zinc-300 hover:bg-zinc-800 hover:text-white text-sm font-medium px-5 py-2.5 w-full sm:w-auto gap-2">
+          <span>Live Demo Workspace</span>
+          <ExternalLink className="w-3.5 h-3.5 text-zinc-500" />
         </Button>
       </Link>
     </div>
@@ -123,15 +100,15 @@ export function PricingAuthAction() {
   return (
     <div className="mt-8">
       <Show when="signed-out">
-        <SignUpButton mode="modal">
-          <Button className="w-full h-11 text-sm font-semibold bg-gradient-to-r from-violet-600 to-indigo-600 text-white hover:opacity-95">
-            Get Started Now
+        <SignUpButton mode="modal" forceRedirectUrl="/dashboard">
+          <Button className="w-full rounded-lg bg-white text-zinc-950 font-medium py-2.5 text-sm hover:bg-zinc-200 transition-all">
+            Start Free Hackathon Access
           </Button>
         </SignUpButton>
       </Show>
       <Show when="signed-in">
         <Link href="/dashboard">
-          <Button className="w-full h-11 text-sm font-semibold bg-gradient-to-r from-violet-600 to-indigo-600 text-white hover:opacity-95">
+          <Button className="w-full rounded-lg bg-white text-zinc-950 font-medium py-2.5 text-sm hover:bg-zinc-200 transition-all">
             Enter Workspace
           </Button>
         </Link>

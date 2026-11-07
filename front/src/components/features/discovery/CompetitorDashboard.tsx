@@ -8,16 +8,12 @@ import {
 } from "@shared/types";
 import { Button } from "@/components/ui/button";
 import {
-  TrendingUp,
   Globe,
-  Radio,
   Sparkles,
   ArrowRight,
   ExternalLink,
-  ShieldAlert,
-  Search,
   CheckCircle2,
-  Check,
+  Zap,
 } from "lucide-react";
 
 interface CompetitorDashboardProps {
@@ -38,113 +34,117 @@ export function CompetitorDashboard({
   const selectedCompetitor =
     competitors.find((c) => c.id === selectedId) || competitors[0];
 
-  const getTierBadge = (tier: string) => {
+  const getTierPill = (tier: string) => {
     switch (tier) {
       case "dominant":
-        return "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20";
+        return "bg-[#e9b0ce]/15 text-[#e9b0ce] border-[#e9b0ce]/30";
       case "challenger":
-        return "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20";
+        return "bg-[#e8b98d]/15 text-[#e8b98d] border-[#e8b98d]/30";
       case "niche":
-        return "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20";
+        return "bg-[#9e93d7]/15 text-[#9e93d7] border-[#9e93d7]/30";
       default:
-        return "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20";
+        return "bg-[#6cbb7a]/15 text-[#6cbb7a] border-[#6cbb7a]/30";
     }
   };
 
   return (
-    <div className="w-full max-w-5xl mx-auto space-y-8">
-      {/* Header & Extracted Brand Insight Notice */}
-      <div className="space-y-4">
+    <div className="w-full space-y-6">
+      {/* Top Banner & Market Snapshot in Editorial Bento Style */}
+      <div className="bg-[#13161c] rounded-3xl p-6 sm:p-8 border border-zinc-800/80 shadow-lg space-y-6">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <h2 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
-              <TrendingUp className="w-6 h-6 text-primary" />
-              Market Discovery & Competitor Landscape
+          <div className="space-y-1">
+            <div className="inline-flex items-center gap-2 rounded-full bg-white/5 border border-white/10 text-zinc-300 text-xs px-3.5 py-1 font-medium">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#99d3df] shadow-[0_0_6px_#99d3df]" />
+              <span className="font-mono text-[11px] text-[#b5b1a6]">STEP 02</span>
+              <span className="text-zinc-600">&bull;</span>
+              <span className="text-[#99d3df] font-medium">Market Vault & Competitor Radar</span>
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
+              Competitor Intelligence & Ad Saturation
             </h2>
-            <p className="text-sm text-muted-foreground mt-1">
-              Identified {competitors.length} primary competitors in the{" "}
-              <span className="font-semibold text-foreground">
-                {onboardingData.brand.niche}
-              </span>{" "}
-              space.
+            <p className="text-sm text-zinc-400">
+              Discovered <span className="text-white font-medium">{competitors.length} key players</span> actively advertising in the{" "}
+              <span className="text-zinc-200 font-medium">{onboardingData.brand.niche}</span> vertical.
             </p>
           </div>
         </div>
 
-        {/* Market Snapshot Stats Bar */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <div className="p-3.5 rounded-xl border border-border/50 bg-card/60 backdrop-blur shadow-xs">
-            <span className="text-xs text-muted-foreground block">Active Ads Scanned</span>
-            <div className="text-xl font-bold text-foreground mt-0.5">
+        {/* 4 Bento Snapshot Metrics */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {/* Bento Card 1: Mint #6cbb7a (Active Ads) */}
+          <div className="bg-[#181b24] rounded-2xl p-4 border border-[#6cbb7a]/30 flex flex-col justify-between">
+            <span className="text-xs text-[#6cbb7a] font-mono uppercase tracking-wider font-semibold">Active Ads Tracked</span>
+            <div className="text-2xl font-bold text-white mt-1">
               {marketSnapshot.totalActiveAds.toLocaleString()}
             </div>
-            <span className="text-[11px] text-muted-foreground flex items-center gap-1 mt-1">
-              Across Meta & TikTok
-            </span>
+            <span className="text-[11px] text-[#b5b1a6] font-mono mt-1">Meta & TikTok combined</span>
           </div>
 
-          <div className="p-3.5 rounded-xl border border-border/50 bg-card/60 backdrop-blur shadow-xs">
-            <span className="text-xs text-muted-foreground block">Avg Effectiveness</span>
-            <div className="text-xl font-bold text-foreground mt-0.5">
-              {marketSnapshot.avgEffectivenessScore}/100
+          {/* Bento Card 2: Dusty Rose #e9b0ce (Effectiveness) */}
+          <div className="bg-[#181b24] rounded-2xl p-4 border border-[#e9b0ce]/30 flex flex-col justify-between">
+            <span className="text-xs text-[#e9b0ce] font-mono uppercase tracking-wider font-semibold">Avg Effectiveness</span>
+            <div className="text-2xl font-bold text-white mt-1">
+              {marketSnapshot.avgEffectivenessScore}
+              <span className="text-sm text-[#e9b0ce]/60 font-mono">/100</span>
             </div>
-            <span className="text-[11px] text-amber-500 font-medium flex items-center gap-1 mt-1">
-              High competition
-            </span>
+            <span className="text-[11px] text-[#b5b1a6] font-mono mt-1">Market benchmark index</span>
           </div>
 
-          <div className="p-3.5 rounded-xl border border-border/50 bg-card/60 backdrop-blur shadow-xs">
-            <span className="text-xs text-muted-foreground block">Dominant Hook Type</span>
-            <div className="text-base font-bold text-foreground mt-1 truncate capitalize">
+          {/* Bento Card 3: Soft Lavender #9e93d7 (Hook) */}
+          <div className="bg-[#181b24] rounded-2xl p-4 border border-[#9e93d7]/30 flex flex-col justify-between">
+            <span className="text-xs text-[#9e93d7] font-mono uppercase tracking-wider font-semibold">Dominant Hook</span>
+            <div className="text-base font-bold text-white mt-1 capitalize truncate">
               {marketSnapshot.dominantHookType.replace("_", " ")}
             </div>
-            <span className="text-[11px] text-muted-foreground flex items-center gap-1 mt-1">
-              Top platform: {marketSnapshot.topPlatform}
-            </span>
+            <span className="text-[11px] text-[#b5b1a6] font-mono mt-1">Top Platform: {marketSnapshot.topPlatform}</span>
           </div>
 
-          <div className="p-3.5 rounded-xl border border-border/50 bg-card/60 backdrop-blur shadow-xs">
-            <span className="text-xs text-muted-foreground block">Market Opportunity</span>
-            <div className="text-base font-bold text-emerald-600 dark:text-emerald-400 mt-1 capitalize">
-              {marketSnapshot.marketSaturationLevel} Saturation
+          {/* Bento Card 4: Muted Cyan #99d3df (Saturation) */}
+          <div className="bg-[#181b24] rounded-2xl p-4 border border-[#99d3df]/30 flex flex-col justify-between">
+            <span className="text-xs text-[#99d3df] font-mono uppercase tracking-wider font-semibold">Market Saturation</span>
+            <div className="text-base font-bold text-white mt-1 capitalize">
+              {marketSnapshot.marketSaturationLevel}
             </div>
-            <span className="text-[11px] text-muted-foreground flex items-center gap-1 mt-1 truncate">
-              White-space identified
-            </span>
+            <span className="text-[11px] text-[#6cbb7a] font-mono mt-1">White-space identified</span>
           </div>
         </div>
 
-        {/* Opportunity Callout Banner */}
-        <div className="p-4 rounded-xl border border-primary/20 bg-primary/5 flex items-start gap-3">
-          <Sparkles className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+        {/* Strategic Opportunity Banner */}
+        <div className="rounded-2xl bg-[#181b24] border border-zinc-800/80 p-4 flex items-start gap-3">
+          <div className="w-7 h-7 rounded-lg bg-[#9e93d7]/15 border border-[#9e93d7]/30 flex items-center justify-center shrink-0 mt-0.5 text-[#9e93d7]">
+            <Sparkles className="w-3.5 h-3.5" />
+          </div>
           <div className="text-xs sm:text-sm">
-            <span className="font-semibold text-foreground">Strategic White-Space: </span>
-            <span className="text-muted-foreground">{marketSnapshot.opportunityGapSummary}</span>
+            <span className="font-mono text-[11px] uppercase tracking-wider text-[#9e93d7] font-semibold block mb-0.5">
+              Strategic White-Space Detected
+            </span>
+            <span className="text-zinc-300">{marketSnapshot.opportunityGapSummary}</span>
           </div>
         </div>
       </div>
 
-      {/* Competitor Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      {/* Bento Grid for Competitors */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {competitors.map((comp) => {
           const isSelected = comp.id === selectedId;
           return (
             <div
               key={comp.id}
               onClick={() => setSelectedId(comp.id)}
-              className={`cursor-pointer rounded-xl border p-5 transition-all text-left relative flex flex-col justify-between ${
+              className={`rounded-3xl p-6 transition-all duration-300 relative flex flex-col justify-between cursor-pointer bg-[#13161c] border ${
                 isSelected
-                  ? "border-primary bg-primary/[0.03] shadow-md ring-2 ring-primary/20"
-                  : "border-border/60 bg-card hover:border-border hover:shadow-sm"
+                  ? "border-[#9e93d7] shadow-xl ring-1 ring-[#9e93d7]/50"
+                  : "border-zinc-800/80 hover:border-zinc-700 hover:bg-[#181b24]"
               }`}
             >
               <div>
-                <div className="flex items-start justify-between gap-2 mb-3">
+                {/* Competitor Header */}
+                <div className="flex items-start justify-between gap-3 mb-3">
                   <div>
-                    <h3 className="font-bold text-base text-foreground flex items-center gap-1.5">
+                    <h3 className="font-bold text-base text-white flex items-center gap-2">
                       {comp.name}
                       {isSelected && (
-                        <CheckCircle2 className="w-4 h-4 text-primary fill-primary/10 inline" />
+                        <CheckCircle2 className="w-4 h-4 text-[#9e93d7] fill-[#9e93d7]/20" />
                       )}
                     </h3>
                     <a
@@ -152,15 +152,16 @@ export function CompetitorDashboard({
                       target="_blank"
                       rel="noopener noreferrer"
                       onClick={(e) => e.stopPropagation()}
-                      className="text-xs text-muted-foreground hover:text-primary flex items-center gap-1 mt-0.5"
+                      className="text-xs text-[#b5b1a6] hover:text-white flex items-center gap-1 mt-1 transition-colors font-mono"
                     >
-                      <Globe className="w-3 h-3" />
+                      <Globe className="w-3 h-3 text-[#99d3df]" />
                       {new URL(comp.websiteUrl).hostname}
                       <ExternalLink className="w-2.5 h-2.5 opacity-60" />
                     </a>
                   </div>
+                  {/* Market tier badge */}
                   <span
-                    className={`text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full border ${getTierBadge(
+                    className={`rounded-full px-2.5 py-0.5 text-[10px] font-mono uppercase font-bold tracking-wider border ${getTierPill(
                       comp.marketShareTier
                     )}`}
                   >
@@ -168,53 +169,56 @@ export function CompetitorDashboard({
                   </span>
                 </div>
 
-                <p className="text-xs text-muted-foreground line-clamp-3 mb-4 leading-relaxed">
+                <p className="text-xs text-zinc-300 leading-relaxed line-clamp-3 mb-5">
                   {comp.summary}
                 </p>
               </div>
 
-              <div className="space-y-3 pt-3 border-t border-border/40">
-                {/* Reach Score Bar */}
+              <div className="space-y-4 pt-4 border-t border-zinc-800/80">
+                {/* Reach Score Bar with #6cbb7a progress */}
                 <div>
-                  <div className="flex justify-between items-center text-xs mb-1">
-                    <span className="text-muted-foreground">Estimated Reach Score</span>
-                    <span className="font-bold text-foreground">{comp.estimatedReachScore}/100</span>
+                  <div className="flex justify-between items-center text-xs mb-1.5">
+                    <span className="text-[#b5b1a6] text-[11px] font-mono">Estimated Reach Score</span>
+                    <span className="font-mono font-bold text-white">{comp.estimatedReachScore}/100</span>
                   </div>
-                  <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden">
+                  <div className="w-full h-1.5 bg-black/40 rounded-full overflow-hidden border border-white/5">
                     <div
-                      className="h-full bg-primary rounded-full transition-all duration-500"
+                      className="h-full bg-[#6cbb7a] rounded-full transition-all duration-500 shadow-[0_0_6px_rgba(108,187,122,0.4)]"
                       style={{ width: `${comp.estimatedReachScore}%` }}
                     />
                   </div>
                 </div>
 
-                {/* Active Channels */}
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-muted-foreground text-[11px] flex items-center gap-1">
-                    <Radio className="w-3 h-3 text-primary" /> Active Ads on:
-                  </span>
-                  <div className="flex gap-1.5">
+                {/* Active Channels (Muted Cyan #99d3df) & Deconstruct Action */}
+                <div className="flex items-center justify-between pt-1">
+                  <div className="flex flex-wrap gap-1.5">
                     {comp.activeChannels.meta && (
-                      <span className="px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-600 dark:text-blue-400 font-medium text-[10px]">
+                      <span className="rounded-full bg-[#99d3df]/15 text-[#99d3df] border border-[#99d3df]/30 font-mono text-[10px] px-2.5 py-0.5 font-medium">
                         Meta
                       </span>
                     )}
                     {comp.activeChannels.instagram && (
-                      <span className="px-1.5 py-0.5 rounded bg-pink-500/10 text-pink-600 dark:text-pink-400 font-medium text-[10px]">
-                        IG
+                      <span className="rounded-full bg-[#99d3df]/15 text-[#99d3df] border border-[#99d3df]/30 font-mono text-[10px] px-2.5 py-0.5 font-medium">
+                        Instagram
                       </span>
                     )}
                     {comp.activeChannels.tiktok && (
-                      <span className="px-1.5 py-0.5 rounded bg-violet-500/10 text-violet-600 dark:text-violet-400 font-medium text-[10px]">
+                      <span className="rounded-full bg-[#99d3df]/15 text-[#99d3df] border border-[#99d3df]/30 font-mono text-[10px] px-2.5 py-0.5 font-medium">
                         TikTok
                       </span>
                     )}
-                    {comp.activeChannels.google && (
-                      <span className="px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-600 dark:text-amber-400 font-medium text-[10px]">
-                        Google
-                      </span>
-                    )}
                   </div>
+
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onSelectCompetitor(comp);
+                    }}
+                    className="rounded-full bg-white text-zinc-950 font-semibold text-xs px-3.5 py-1.5 hover:bg-zinc-200 transition-all shadow-sm cursor-pointer"
+                  >
+                    Deconstruct
+                  </button>
                 </div>
               </div>
             </div>
@@ -222,25 +226,30 @@ export function CompetitorDashboard({
         })}
       </div>
 
-      {/* Selected Action CTA */}
-      <div className="p-4 rounded-xl border border-border/60 bg-card flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <span className="text-xs text-muted-foreground uppercase tracking-wider font-semibold block">
-            Selected Competitor for Ad Reverse Engineering
-          </span>
-          <div className="text-base font-bold text-foreground mt-0.5 flex items-center gap-2">
-            <span>{selectedCompetitor?.name}</span>
-            <span className="text-xs text-muted-foreground font-normal">
-              (Query: <code className="text-[11px] font-mono bg-muted px-1.5 py-0.5 rounded">{selectedCompetitor?.adLibraryQuery}</code>)
+      {/* Selected Competitor Footer Bar */}
+      <div className="bg-[#13161c] rounded-3xl p-5 border border-zinc-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-2xl bg-[#9e93d7]/15 border border-[#9e93d7]/30 flex items-center justify-center text-[#9e93d7] shrink-0">
+            <Zap className="w-5 h-5" />
+          </div>
+          <div>
+            <span className="text-[10px] font-mono text-[#b5b1a6] uppercase tracking-wider font-semibold block">
+              Active Focus Target
             </span>
+            <div className="text-sm font-bold text-white flex items-center gap-2">
+              <span>{selectedCompetitor.name}</span>
+              <span className="text-xs text-[#b5b1a6] font-normal">
+                &bull; Ready for creative reverse engineering
+              </span>
+            </div>
           </div>
         </div>
 
         <Button
-          onClick={() => selectedCompetitor && onSelectCompetitor(selectedCompetitor)}
-          className="px-6 py-2.5 h-auto text-sm font-semibold gap-2 shadow-md hover:shadow-lg transition-all"
+          onClick={() => onSelectCompetitor(selectedCompetitor)}
+          className="rounded-full bg-white text-zinc-950 font-bold px-7 py-2.5 text-sm hover:bg-zinc-200 transition-all gap-2 cursor-pointer shrink-0"
         >
-          Reverse-Engineer Ads
+          <span>Deconstruct {selectedCompetitor.name}</span>
           <ArrowRight className="w-4 h-4" />
         </Button>
       </div>
