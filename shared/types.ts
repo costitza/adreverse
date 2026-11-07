@@ -142,6 +142,8 @@ export interface ActiveChannels {
 /** POST /api/discovery/run — request body */
 export interface MarketDiscoveryRequest {
   brandId: string;
+  niche?: string;
+  brandProfile?: BrandProfile;
   maxCompetitors?: number; // default: 5
   includeTiers?: MarketShareTier[];
 }
