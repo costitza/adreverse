@@ -26,6 +26,13 @@ from app.schemas.domain import (
     AdAnalysisRequest,
     AdAggregateSummary,
     AdAnalysisResponse,
+    UgcStoryboardFrame,
+    CostSavingsEstimate,
+    ProjectedMetrics,
+    GeneratedCampaign,
+    AdaptationStrategy,
+    CampaignGenerationRequest,
+    CampaignGenerationResponse,
 )
 
 __all__ = [
@@ -56,4 +63,11 @@ __all__ = [
     "AdAnalysisRequest",
     "AdAggregateSummary",
     "AdAnalysisResponse",
+    "UgcStoryboardFrame",
+    "CostSavingsEstimate",
+    "ProjectedMetrics",
+    "GeneratedCampaign",
+    "AdaptationStrategy",
+    "CampaignGenerationRequest",
+    "CampaignGenerationResponse",
 ]

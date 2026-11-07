@@ -9,6 +9,7 @@ from app.schemas.domain import (
     BrandInsights,
     CompetitorAd,
     AdAnalysisResult,
+    GeneratedCampaign,
 )
 
 logger = logging.getLogger(__name__)
@@ -20,9 +21,12 @@ def _ensure_uuid(val: Optional[str]) -> str:
     try:
         return str(uuid.UUID(val))
     except (ValueError, AttributeError):
-        return str(uuid.uuid5(uuid.NAMESPACE_DNS, val))
+        return str(uuid.uuid5(uuid.NAMESPACE_DNS, str(val)))
 
 class DbService:
+    # -----------------------------------------------------------------------
+    # STEP 1: Brand Profiles
+    # -----------------------------------------------------------------------
     @staticmethod
     async def save_brand_profile(
         profile: BrandProfile,
@@ -30,6 +34,7 @@ class DbService:
     ) -> Optional[Dict[str, Any]]:
         """Save or update brand profile in Supabase `brand_profiles` table."""
         if not supabase:
+            logger.warning("Supabase client not initialized")
             return None
 
         brand_uuid = _ensure_uuid(profile.id)
@@ -56,6 +61,7 @@ class DbService:
         try:
             res = supabase.table("brand_profiles").upsert(row_data).execute()
             if res.data:
+                logger.info(f"Saved brand profile {brand_uuid}")
                 return res.data[0]
         except Exception as e:
             logger.error(f"Failed to save brand profile to Supabase: {e}")
@@ -74,6 +80,9 @@ class DbService:
             logger.warning(f"Could not fetch brand profile {brand_uuid}: {e}")
         return None
 
+    # -----------------------------------------------------------------------
+    # STEP 2: Competitors
+    # -----------------------------------------------------------------------
     @staticmethod
     async def get_competitor(competitor_id: str) -> Optional[Dict[str, Any]]:
         if not supabase:
@@ -128,6 +137,7 @@ class DbService:
 
         try:
             res = supabase.table("competitors").upsert(rows).execute()
+            logger.info(f"Saved {len(rows)} competitors")
             return res.data
         except Exception as e:
             logger.error(f"Failed to save competitors to Supabase: {e}")
@@ -149,7 +159,6 @@ class DbService:
     # -----------------------------------------------------------------------
     # STEP 3: Competitor Ads & Ad Analyses
     # -----------------------------------------------------------------------
-
     @staticmethod
     async def save_competitor_ads(ads: List[CompetitorAd]) -> Optional[List[Dict[str, Any]]]:
         if not supabase or not ads:
@@ -175,6 +184,7 @@ class DbService:
 
         try:
             res = supabase.table("competitor_ads").upsert(rows).execute()
+            logger.info(f"Saved {len(rows)} competitor ads")
             return res.data
         except Exception as e:
             logger.error(f"Failed to save competitor ads to Supabase: {e}")
@@ -194,6 +204,19 @@ class DbService:
         return None
 
     @staticmethod
+    async def get_ads_by_ids(ad_ids: List[str]) -> Optional[List[Dict[str, Any]]]:
+        if not supabase or not ad_ids:
+            return None
+        clean_ids = [_ensure_uuid(i) for i in ad_ids]
+        try:
+            res = supabase.table("competitor_ads").select("*").in_("ad_id", clean_ids).execute()
+            if res.data:
+                return res.data
+        except Exception as e:
+            logger.warning(f"Could not fetch ads by ids: {e}")
+        return None
+
+    @staticmethod
     async def save_ad_analyses(analyses: List[AdAnalysisResult], brand_id: str, competitor_id: str) -> Optional[List[Dict[str, Any]]]:
         if not supabase or not analyses:
             return None
@@ -205,28 +228,75 @@ class DbService:
                 "ad_id": _ensure_uuid(item.ad.ad_id),
                 "brand_id": _ensure_uuid(brand_id),
                 "competitor_id": _ensure_uuid(competitor_id),
+                # Stochează JSON-ul camelCase conform contractului frontend
                 "breakdown": item.breakdown.model_dump(by_alias=True),
                 "analysed_at": item.analysed_at,
             })
 
         try:
             res = supabase.table("ad_analyses").upsert(rows).execute()
+            logger.info(f"Saved {len(rows)} ad analyses")
             return res.data
         except Exception as e:
             logger.error(f"Failed to save ad analyses to Supabase: {e}")
             return None
 
     @staticmethod
-    async def get_ad_analyses(competitor_id: str) -> Optional[List[Dict[str, Any]]]:
+    async def get_ad_analyses_by_brand(brand_id: str) -> Optional[List[Dict[str, Any]]]:
         if not supabase:
             return None
-        comp_uuid = _ensure_uuid(competitor_id)
+        brand_uuid = _ensure_uuid(brand_id)
         try:
-            res = supabase.table("ad_analyses").select("*").eq("competitor_id", comp_uuid).execute()
+            res = supabase.table("ad_analyses").select("*").eq("brand_id", brand_uuid).execute()
             if res.data:
                 return res.data
         except Exception as e:
             logger.warning(f"Could not fetch ad analyses: {e}")
         return None
+
+    # -----------------------------------------------------------------------
+    # STEP 4: Generated Campaigns
+    # -----------------------------------------------------------------------
+    @staticmethod
+    async def save_generated_campaigns(
+        campaigns: List[GeneratedCampaign],
+        competitor_id: Optional[str] = None,
+        user_id: Optional[str] = None,
+    ) -> Optional[List[Dict[str, Any]]]:
+        if not supabase or not campaigns:
+            return None
+
+        rows = []
+        for camp in campaigns:
+            brand_uuid = _ensure_uuid(camp.brand_id)
+            comp_uuid = _ensure_uuid(competitor_id) if competitor_id else None
+            rows.append({
+                "id": _ensure_uuid(camp.id),
+                "user_id": user_id or "anonymous",
+                "brand_id": brand_uuid,
+                "competitor_id": comp_uuid,
+                "campaign_name": camp.headline,
+                "strategy_angle": camp.angle_used,
+                "hook_type": "bold_statement",
+                "target_platform": "meta",
+                "generated_copy": {
+                    "headline": camp.headline,
+                    "primaryText": camp.primary_text,
+                    "cta": camp.cta,
+                    "visualConceptBrief": camp.visual_concept_brief,
+                    "ugcStoryboard": [f.model_dump(by_alias=True) for f in camp.ugc_storyboard],
+                    "estimatedCostSavings": camp.estimated_cost_savings.model_dump(by_alias=True),
+                    "projectedMetrics": camp.projected_metrics.model_dump(by_alias=True),
+                },
+                "status": "ready",
+            })
+
+        try:
+            res = supabase.table("ad_campaigns").upsert(rows).execute()
+            logger.info(f"Saved {len(rows)} generated campaigns")
+            return res.data
+        except Exception as e:
+            logger.error(f"Failed to save generated campaigns to Supabase: {e}")
+            return None
 
 db_service = DbService()
