@@ -340,7 +340,7 @@ export default function DashboardPage() {
                       className="w-full text-left px-3 py-2 rounded-xl text-xs font-medium text-emerald-400 hover:bg-emerald-500/10 transition-colors flex items-center gap-2 cursor-pointer"
                     >
                       <Plus className="w-3.5 h-3.5" />
-                      <span>+ New Company Vault</span>
+                      <span>New Company Vault</span>
                     </button>
                   </div>
                 </div>
