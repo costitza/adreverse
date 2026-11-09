@@ -243,4 +243,4 @@ npm run build
 
 ## 📄 License
 
-This project was built for the **AI Hackathon 2026**. All rights reserved.
+This project was built for the **ITFest Adobe 12 hours hackathon**. All rights reserved.
